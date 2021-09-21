@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Index</title>
+    </head>
+    <style type="text/css" media="screen">
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+    <body>
+        <h1>Courses</h1>
+            <table id="courses" style="width:100%">
+                <tr>
+                    <th>ID</th>
+                    <th>Time</th>
+                    <th>Title</th>
+                    <th>Introduction</th>
+                    <th>Image</th>
+                    <th>Level</th>
+                </tr>
+            </table> 
+    </body>
+</html>
+<script charset="utf-8">
+// type CourseSummary struct {
+//     Id int
+//     Time int64
+//     Title string
+//     Introduction string
+//     Image string
+//     Level int
+// }
+var columns = ["Id", "Time", "Title", "Introduction", "Image", "Level"];
+var search = window.location.search;
+if (search == "") search = "?size=10";
+window.onload = async function() {
+    const resp = await fetch(`/api/courses${search}`);
+    var courses = await resp.json();
+    var table = document.querySelector("#courses");
+    courses.forEach(course => {
+        var tr = document.createElement("tr");
+        for (var i = 0; i < columns.length; ++i) {
+            var td = document.createElement("td");
+            td.innerText = course[columns[i]];
+            tr.appendChild(td);
+        }
+        table.appendChild(tr);
+    });
+};
+</script>

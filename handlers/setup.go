@@ -1,0 +1,75 @@
+package handlers
+
+import (
+    "log"
+    "os"
+    "net/http"
+    "strings"
+    "encoding/json"
+
+    "github.com/gorilla/sessions"
+)
+
+func Setup(){
+    http.Handle("/", http.FileServer(http.Dir("./www")))
+    http.HandleFunc("/img/", FileServer)
+    http.HandleFunc("/api/", Handler)
+}
+
+type SecretFunc func(
+    w http.ResponseWriter, r *http.Request, s *sessions.Session)
+
+var (
+    Routes       = make(map[string]http.HandlerFunc)
+    SecretRoutes = make(map[string]SecretFunc)
+    Store        = sessions.NewCookieStore([]byte("super-secret-key"))
+)
+
+const (
+    LevelVip     = 1<<iota
+    LevelWorker  = 1<<iota
+    LevelAdmin   = 1<<iota
+    LevelDefault = 0
+)
+
+func Handler(w http.ResponseWriter, r *http.Request) {
+    path := strings.TrimPrefix(r.URL.Path, "/api")
+    w.Header().Set("Content-Type", "application/json")
+    if handler, found := Routes[path]; found {
+        handler(w, r)
+    } else if handler, found := SecretRoutes[path]; found {
+        Secret(w, r, handler)
+    } else {
+        http.NotFound(w, r)
+        log.Println(r.URL.Path)
+    }
+}
+
+func Secret(w http.ResponseWriter, r *http.Request, handler SecretFunc) {
+    session, err := Store.Get(r, "cookie-fl")
+    if err == nil {
+        if id, ok := session.Values["userid"].(int); !ok || id == 0 {
+            http.Error(w, "Forbidden", http.StatusForbidden)
+        } else {
+            handler(w, r, session)
+        }
+    } else {
+        log.Panic(err)
+    }
+}
+
+func FileServer(w http.ResponseWriter, r *http.Request) {
+    path := r.URL.Path[1:]
+    if info, err := os.Stat(path); err == nil && !info.IsDir() {
+        http.ServeFile(w, r, path)
+    } else {
+        http.NotFound(w, r)
+    }
+}
+
+func Jsonify(w http.ResponseWriter, v interface{}) {
+    err := json.NewEncoder(w).Encode(v)
+    if err != nil {
+        log.Panic(err)
+    }
+}

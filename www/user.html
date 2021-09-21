@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>User</title>
+    </head>
+    <style type="text/css" media="screen">
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+    <body>
+        <h1>User</h1>
+        <ol id="user">
+        </ol>
+        <table id="courses" style="width:100%">
+            <tr>
+                <th>ID</th>
+                <th>Time</th>
+                <th>Title</th>
+                <th>Introduction</th>
+                <th>Image</th>
+                <th>Level</th>
+            </tr>
+        </table> 
+    </body>
+</html>
+
+<script charset="utf-8">
+// type User struct {
+//     Id int
+//     Username string
+//     - Password string
+//     Email string
+//     Introduction string
+//     Image string
+//     Time int
+//     Level string
+// }
+window.onload = function() {
+    loadUser();
+    loadLikes();
+};
+
+async function loadUser() {
+    var columns = ["Id", "Username", "Email", "Introduction", "Image", "Time", "Level"];
+    const resp = await fetch(`/api/user${window.location.search}`);
+    var user = await resp.json();
+    var list = document.querySelector("#user");
+    for (var i = 0; i < columns.length; ++i) {
+        var column = columns[i];
+        var li = document.createElement("li");
+        li.innerText = `${column}: ${user[column]}`;
+        list.appendChild(li);
+    }
+};
+
+async function loadLikes() {
+    var columns = ["Id", "Time", "Title", "Introduction", "Image", "Level"];
+    const resp = await fetch(`/api/likes`);
+    var courses = await resp.json();
+    var table = document.querySelector("#courses");
+    courses.forEach(course => {
+        var tr = document.createElement("tr");
+        for (var i = 0; i < columns.length; ++i) {
+            var td = document.createElement("td");
+            td.innerText = course[columns[i]];
+            tr.appendChild(td);
+        }
+        table.appendChild(tr);
+    });
+};
+</script>

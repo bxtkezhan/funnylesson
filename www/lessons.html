@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Lessons</title>
+    </head>
+    <style type="text/css" media="screen">
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+    <body>
+        <h1>Lessons</h1>
+            <table id="lessons" style="width:100%">
+                <tr>
+                    <th>ID</th>
+                    <th>Time</th>
+                    <th>Title</th>
+                    <th>Introduction</th>
+                    <th>Image</th>
+                    <th>Level</th>
+                </tr>
+            </table> 
+    </body>
+</html>
+<script charset="utf-8">
+// type LessonSummary struct {
+//     Id int
+//     Time int64
+//     Title string
+//     Introduction string
+//     Image string
+//     Level int
+// }
+var columns = ["Id", "Time", "Title", "Introduction", "Image", "Level"];
+var search = window.location.search;
+if (search == "") search = "?size=10";
+window.onload = async function() {
+    const resp = await fetch(`/api/lessons${search}`);
+    var lessons = await resp.json();
+    var table = document.querySelector("#lessons");
+    lessons.forEach(user => {
+        var tr = document.createElement("tr");
+        for (var i = 0; i < columns.length; ++i) {
+            var td = document.createElement("td");
+            td.innerText = user[columns[i]];
+            tr.appendChild(td);
+        }
+        table.appendChild(tr);
+    });
+};
+</script>
