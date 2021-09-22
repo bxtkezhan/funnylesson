@@ -35,6 +35,11 @@ func Course(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         log.Panic(err)
     }
+    level, _ := Authority(r)
+    if level < course.Level {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
     Jsonify(w, course)
 }
 

@@ -6,6 +6,9 @@ import (
     "net/http"
     "strings"
     "encoding/json"
+    "context"
+
+    db "../database"
 
     "github.com/gorilla/sessions"
 )
@@ -72,4 +75,23 @@ func Jsonify(w http.ResponseWriter, v interface{}) {
     if err != nil {
         log.Panic(err)
     }
+}
+
+func Authority(r *http.Request) (int, error) {
+    ctx := r.Context()
+    session, err := Store.Get(r, "cookie-fl")
+    if err != nil {
+        return LevelDefault, err
+    }
+    id, found := session.Values["userid"].(int)
+    if !found || id == 0 {
+        return LevelDefault, nil
+    }
+    ctx_, cancel := context.WithCancel(ctx)
+    user, err := db.GetUserById(ctx_, id)
+    cancel()
+    if err != nil {
+        return LevelDefault, err
+    }
+    return user.Level, nil
 }

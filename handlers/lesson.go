@@ -17,31 +17,25 @@ import (
 )
 
 func init() {
+    Routes["/lesson"] = Lesson
     Routes["/lessons"] = Lessons
-    SecretRoutes["/lesson"] = Lesson
     SecretRoutes["/addlesson"] = AddLesson
 }
 
-func Lesson(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
+func Lesson(w http.ResponseWriter, r *http.Request) {
     ctx := r.Context()
-    id := s.Values["userid"].(int)
-    ctx_, cancel := context.WithCancel(ctx)
-    user, err := db.GetUserById(ctx_, id)
-    cancel()
+    id, err := strconv.Atoi(r.URL.Query().Get("id"))
+    if err != nil {
+        id = 1
+    }
+    lesson, err := db.GetLessonById(ctx, id)
     if err != nil {
         log.Panic(err)
     }
-    lessonId, err := strconv.Atoi(r.URL.Query().Get("id"))
-    if err != nil {
-        lessonId = 1
-    }
-    lesson, err := db.GetLessonById(ctx, lessonId)
-    if user.Level < lesson.Level {
+    level, _ := Authority(r)
+    if level < lesson.Level {
         http.Error(w, "Forbidden", http.StatusForbidden)
         return
-    }
-    if err != nil {
-        log.Panic(err)
     }
     Jsonify(w, lesson)
 }
