@@ -58,7 +58,16 @@ func Courses(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         log.Panic(err)
     }
-    Jsonify(w, courses)
+    total, err := db.GetCoursesPageTotal(ctx, size, category)
+    if err != nil {
+        log.Panic(err)
+    }
+    Jsonify(w, struct{
+        Courses []*db.CourseSummary
+        Total int
+        Page int
+        Size int
+    } {courses, total, page, size})
 }
 
 func AddCourse(w http.ResponseWriter, r *http.Request, s *sessions.Session) {

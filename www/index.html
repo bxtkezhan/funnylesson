@@ -3,27 +3,25 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
+        <link rel="stylesheet" href="/css/basic.css" type="text/css">
         <title>Index</title>
     </head>
-    <style type="text/css" media="screen">
-        table, th, td {
-            border: 1px solid black;
-        }
-    </style>
     <body>
-        <h1>Courses</h1>
-            <table id="courses" style="width:100%">
-                <tr>
-                    <th>ID</th>
-                    <th>Time</th>
-                    <th>Title</th>
-                    <th>Introduction</th>
-                    <th>Image</th>
-                    <th>Level</th>
-                </tr>
-            </table> 
+        <nav class="navbar">
+            <a href="/">首頁</a>
+            <a href="/login.html">登錄/註冊</a>
+        </nav>
+        <div class="container">
+            <div id="course">
+                <img f-name="Image" f-onclick="Id" class="thumbnail"/>
+                <header f-name="Title" f-onclick="Id" style="font-weight: bold; font-size: large"></header>
+                <time f-name="Time" style="color: #444; font-size: small"></time>
+            </div>
+        </div>
+        <button id="more" style="width: 100%">更多</button>
     </body>
 </html>
+<script src="/js/functions.js" charset="utf-8"></script>
 <script charset="utf-8">
 // type CourseSummary struct {
 //     Id int
@@ -33,21 +31,25 @@
 //     Image string
 //     Level int
 // }
-var columns = ["Id", "Time", "Title", "Introduction", "Image", "Level"];
-var search = window.location.search;
-if (search == "") search = "?size=10";
-window.onload = async function() {
-    const resp = await fetch(`/api/courses${search}`);
-    var courses = await resp.json();
-    var table = document.querySelector("#courses");
-    courses.forEach(course => {
-        var tr = document.createElement("tr");
-        for (var i = 0; i < columns.length; ++i) {
-            var td = document.createElement("td");
-            td.innerText = course[columns[i]];
-            tr.appendChild(td);
-        }
-        table.appendChild(tr);
+
+var nodes = select_template('#course');
+
+async function load_more(page, size) {
+    var data = await load_courses(page, size);
+    extend_items(data.Courses, nodes.tpl, nodes.ptr, function(id) {
+        location.href = `/course.html?id=${id}`;
     });
+    var more = document.querySelector('#more');
+    if (data.Page >= data.Total - 1) {
+        more.parentNode.removeChild(more);
+    } else {
+        more.onclick = function() {
+            load_more(page + 1, size);
+        }
+    }
+}
+
+window.onload = function() {
+    load_more(0, 4);
 };
 </script>

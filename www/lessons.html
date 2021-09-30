@@ -3,27 +3,31 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
+        <link rel="stylesheet" href="/css/basic.css" type="text/css">
         <title>Lessons</title>
     </head>
-    <style type="text/css" media="screen">
-        table, th, td {
-            border: 1px solid black;
-        }
-    </style>
     <body>
-        <h1>Lessons</h1>
-            <table id="lessons" style="width:100%">
-                <tr>
-                    <th>ID</th>
-                    <th>Time</th>
-                    <th>Title</th>
-                    <th>Introduction</th>
-                    <th>Image</th>
-                    <th>Level</th>
-                </tr>
-            </table> 
+        <nav class="navbar">
+            <a href="/">首頁</a>
+            <a href="/login.html">登錄/註冊</a>
+        </nav>
+        <div>
+            <article id="lesson">
+                <a f-name="Image" f-type="img" href="/" target="_blank">
+                    <img class="thumbnail"/>
+                </a>
+                <strong f-name="Title"></strong>
+                <p f-name="Introduction"></p>
+                <p f-name="Time"></p>
+                <p f-name="Level"></p>
+            </article>
+        </div>
+        <div>
+            <button id="more" style="width: 100%">更多</button>
+        </div>
     </body>
 </html>
+<script src="/js/functions.js" charset="utf-8"></script>
 <script charset="utf-8">
 // type LessonSummary struct {
 //     Id int
@@ -33,21 +37,42 @@
 //     Image string
 //     Level int
 // }
-var columns = ["Id", "Time", "Title", "Introduction", "Image", "Level"];
-var search = window.location.search;
-if (search == "") search = "?size=10";
-window.onload = async function() {
-    const resp = await fetch(`/api/lessons${search}`);
-    var lessons = await resp.json();
-    var table = document.querySelector("#lessons");
-    lessons.forEach(user => {
-        var tr = document.createElement("tr");
-        for (var i = 0; i < columns.length; ++i) {
-            var td = document.createElement("td");
-            td.innerText = user[columns[i]];
-            tr.appendChild(td);
+
+var nodes = select_template('#lesson');
+
+async function load_more(page, size) {
+    var data = await load_lessons(page, size);
+    console.log(data);
+    extend_items(data.Lessons, nodes.tpl, nodes.ptr);
+    var more = document.querySelector('#more');
+    if (data.Page >= data.Total - 1) {
+        more.parentNode.removeChild(more);
+    } else {
+        more.onclick = function() {
+            load_more(page + 1, size);
         }
-        table.appendChild(tr);
-    });
+    }
+}
+
+window.onload = function() {
+    load_more(0, 2);
 };
+
+// var columns = ["Id", "Time", "Title", "Introduction", "Image", "Level"];
+// var search = window.location.search;
+// if (search == "") search = "?size=10";
+// window.onload = async function() {
+//     const resp = await fetch(`/api/lessons${search}`);
+//     var lessons = await resp.json();
+//     var table = document.querySelector("#lessons");
+//     lessons.forEach(user => {
+//         var tr = document.createElement("tr");
+//         for (var i = 0; i < columns.length; ++i) {
+//             var td = document.createElement("td");
+//             td.innerText = user[columns[i]];
+//             tr.appendChild(td);
+//         }
+//         table.appendChild(tr);
+//     });
+// };
 </script>

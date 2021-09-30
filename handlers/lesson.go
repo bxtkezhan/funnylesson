@@ -58,7 +58,16 @@ func Lessons(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         log.Panic(err)
     }
-    Jsonify(w, lessons)
+    total, err := db.GetLessonsPageTotal(ctx, size, owner)
+    if err != nil {
+        log.Panic(err)
+    }
+    Jsonify(w, struct{
+        Lessons []*db.LessonSummary
+        Total int
+        Page int
+        Size int
+    } {lessons, total, page, size})
 }
 
 func AddLesson(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
