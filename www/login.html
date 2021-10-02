@@ -3,20 +3,31 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
+        <link rel="stylesheet" href="/css/basic.css" type="text/css">
         <title>User</title>
     </head>
     <body>
-        <form action="/api/login" method="post" accept-charset="utf-8">
-            <div>
-                <input type="email" name="email" id="email" value="">
-                Email
-            </div>
-            <div>
-                <input type="password" name="password" id="password" value="">
-                Password
-            </div>
-            <input type="submit" value="Submit" />
-        </form>
+        <nav class="menu">
+            <a class="menu-logo" href="/">
+                <img src="/logo/studydou.png"/>
+            </a>
+            <a class="menu-title" href="/">Studydou</a>
+            <a class="menu-item" href="/">課程</a>
+        </nav>
+        <main>
+            <form action="/api/login" method="post" accept-charset="utf-8">
+                <div>
+                    <label>郵箱</label>
+                    <input type="email" name="email" id="email" value="">
+                </div>
+                <div>
+                    <label>密碼</label>
+                    <input type="password" name="password" id="password" value="">
+                </div>
+                <input class="button" type="submit" value="登錄"/>
+                <a href="/signup.html" style="float: right;font-size: small">還沒有帳號？點擊註冊！</a>
+            </form>
+        </main>
     </body>
 </html>
 

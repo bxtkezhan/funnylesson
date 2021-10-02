@@ -18,7 +18,7 @@ function extend_items(items, template, container, onclick=null) {
                     column.src = `/img/${value}`;
                     break;
                 case 'TIME':
-                    const time = new Date(value * 1000).toDateString();
+                    const time = new Date(value * 1000).toLocaleDateString();
                     column.setAttribute('datetime', time);
                     column.innerText = time;
                     break;
@@ -39,12 +39,31 @@ function extend_items(items, template, container, onclick=null) {
     });
 }
 
-async function load_courses(page, size) {
-    const resp = await fetch(`/api/courses?page=${page}&size=${size}`);
+async function load_courses(page, size, category='') {
+    const resp = await fetch(`/api/courses?page=${page}&size=${size}&category=${category}`);
     return await resp.json();
 }
 
 async function load_lessons(page, size) {
     const resp = await fetch(`/api/lessons?page=${page}&size=${size}`);
     return await resp.json();
+}
+
+function set_loading(id) {
+    var box = document.querySelector(id);
+    if (box.children.length == 0) {
+        var lds = document.createElement('DIV');
+        lds.classList.add('lds-default');
+        box.append(lds);
+        for (let i = 0; i < 12; ++i) {
+            lds.append(document.createElement('DIV'));
+        }
+    }
+}
+
+function del_loading(id) {
+    var box = document.querySelector(id);
+    if (box.children.length > 0) {
+        box.removeChild(box.firstChild);
+    }
 }

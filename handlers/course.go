@@ -148,7 +148,7 @@ func AddCourse(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
     } else {
         db.SetCourse(ctx, course)
     }
-    http.Redirect(w, r, "/index.html", http.StatusSeeOther)
+    http.Redirect(w, r, "/addcourse.html", http.StatusSeeOther)
 }
 
 func Contents(w http.ResponseWriter, r *http.Request) {
