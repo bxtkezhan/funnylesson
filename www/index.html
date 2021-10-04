@@ -13,30 +13,52 @@
             </a>
             <a class="menu-title" href="/">StudyDou</a>
             <a class="menu-item" href="/login.html">登錄|註冊</a>
-            <a class="menu-item" href="/">課程</a>
+            <a class="menu-item" href="/courses.html">課程</a>
         </nav>
         <main>
-            <h1 style="text-align: center;">課程</h1>
-            <div class="container tags">
-                <a href="/">全部</a>
-                <a href="/">語文</a>
-                <a href="/">數學</a>
-                <a href="/">英語</a>
-                <a href="/">物理</a>
-            </div>
-            <div class="container gallery">
-                <div id="course">
-                    <img f-name="Image" f-onclick="Id"/>
-                    <header f-name="Title" f-onclick="Id"></header>
-                    <summary f-name="Introduction"></summary>
-                    <time f-name="Time" style="float: right"></time>
+            <section id="selector" style="max-width: 60%">
+                <header></header>
+                <div class="container tags"></div>
+            </section>
+            <section class="courses" f-name="語文">
+                <header></header>
+                <div class="container gallery">
+                    <div id="course">
+                        <img f-name="Image" f-onclick="Id"/>
+                        <header f-name="Title" f-onclick="Id"></header>
+                        <summary f-name="Introduction"></summary>
+                        <time f-name="Time" style="float: right"></time>
+                    </div>
                 </div>
-            </div>
+                <div style="text-align: center; margin-top: 2em">
+                    <a class="button" href="/courses.html">更多課程</a>
+                </div>
+            </section>
+            <section class="courses" f-name="數學">
+                <header></header>
+                <div class="container gallery"></div>
+                <div style="text-align: center; margin-top: 2em">
+                    <a class="button" href="/courses.html">更多課程</a>
+                </div>
+            </section>
+            <section class="courses" f-name="英語">
+                <header></header>
+                <div class="container gallery"></div>
+                <div style="text-align: center; margin-top: 2em">
+                    <a class="button" href="/courses.html">更多課程</a>
+                </div>
+            </section>
+            <section class="courses" f-name="物理">
+                <header></header>
+                <div class="container gallery"></div>
+                <div style="text-align: center; margin-top: 2em">
+                    <a class="button" href="/courses.html">更多課程</a>
+                </div>
+            </section>
         </main>
         <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
             <img src="/icon/down-chevron.png" alt=""/>
         </a>
-        <center id="loading"></center>
         <footer></footer>
     </body>
 </html>
@@ -51,21 +73,9 @@
 //     Level int
 // }
 
-const size = 4;
-var nodes = select_template('#course');
-var page = 0;
+const categories = ['全部', '語文' ,'數學', '英語', '物理'];
 
-async function load_more(page, size) {
-    set_loading('#loading');
-    var data = await load_courses(page, size);
-    del_loading('#loading');
-    extend_items(data.Courses, nodes.tpl, nodes.ptr, function(id) {
-        location.href = `/course.html?id=${id}`;
-    });
-    return data;
-}
-
-function change_gotobtn() {
+window.onscroll = function () {
     var navbar = document.querySelector('nav');
     var bottom = navbar.getBoundingClientRect().bottom;
     if (bottom < 0) {
@@ -73,37 +83,29 @@ function change_gotobtn() {
     } else {
         document.querySelector('#goto').style.visibility = 'hidden';
     }
-}
+};
 
-window.onscroll = async function() {
-    change_gotobtn();
-    var tag = document.querySelector('footer');
-    var top = tag.getBoundingClientRect().top;
-    if (top < window.innerHeight) {
-        const onscroll = window.onscroll;
-        window.onscroll = change_gotobtn;
-        const data = await load_more(page++, size);
-        if (page < data.Total) {
-            window.onscroll = onscroll;
-        }
-    }
-}
+window.onload = function() {
+    var selector = document.querySelector('#selector');
+    var tags = selector.querySelector('.tags');
+    categories.forEach((item, i) => {
+        var tag = document.createElement('a');
+        tag.innerText = item;
+        tag.href = '/courses.html';
+        if (i > 0) tag.href += `?category=${item}`;
+        tags.append(tag);
+    });
 
-window.onload = async function() {
-    var main = document.querySelector("main");
-    var footer = document.querySelector("footer");
-    const main_top = main.getBoundingClientRect().top;
-    const footer_height = footer.getBoundingClientRect().height;
-    main.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
-
-    var tag = document.querySelector('footer');
-    var top = tag.getBoundingClientRect().top;
-    while (top < window.innerHeight) {
-        const data = await load_more(page++, size);
-        top = tag.getBoundingClientRect().top;
-        if (page >= data.Total) {
-            break;
-        }
-    }
+    var tpl = select_template('#course').tpl;
+    var sections = document.querySelectorAll('.courses');
+    sections.forEach(async function(section) {
+        const category = section.getAttribute('f-name');
+        const data = await load_courses(0, 12, category);
+        section.querySelector('header').innerText = category;
+        var ptr = section.querySelector('.gallery');
+        extend_items(data.Courses, tpl, ptr, function(id) {
+            location.href = `/course.html?id=${id}`;
+        });
+    });
 };
 </script>

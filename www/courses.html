@@ -13,25 +13,23 @@
             </a>
             <a class="menu-title" href="/">StudyDou</a>
             <a class="menu-item" href="/login.html">登錄|註冊</a>
-            <a class="menu-item" href="/">課程</a>
+            <a class="menu-item" href="/">首頁</a>
         </nav>
         <main>
-            <h1 style="text-align: center;">課程</h1>
-            <div class="container tags">
-                <a href="/">全部</a>
-                <a href="/">語文</a>
-                <a href="/">數學</a>
-                <a href="/">英語</a>
-                <a href="/">物理</a>
-            </div>
-            <div class="container gallery">
-                <div id="course">
-                    <img f-name="Image" f-onclick="Id"/>
-                    <header f-name="Title" f-onclick="Id"></header>
-                    <summary f-name="Introduction"></summary>
-                    <time f-name="Time" style="float: right"></time>
+            <section id="selector" style="max-width: 60%">
+                <header>課程</header>
+                <div class="container tags"></div>
+            </section>
+            <section>
+                <div class="container gallery">
+                    <div id="course">
+                        <img f-name="Image" f-onclick="Id"/>
+                        <header f-name="Title" f-onclick="Id"></header>
+                        <summary f-name="Introduction"></summary>
+                        <time f-name="Time" style="float: right"></time>
+                    </div>
                 </div>
-            </div>
+            </section>
         </main>
         <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
             <img src="/icon/down-chevron.png" alt=""/>
@@ -51,13 +49,14 @@
 //     Level int
 // }
 
-const size = 4;
+const categories = ['全部', '語文' ,'數學', '英語', '物理'];
+const category = (new URLSearchParams(location.search)).get('category') || '';
 var nodes = select_template('#course');
 var page = 0;
 
-async function load_more(page, size) {
+async function load_more(page) {
     set_loading('#loading');
-    var data = await load_courses(page, size);
+    var data = await load_courses(page, 4, category);
     del_loading('#loading');
     extend_items(data.Courses, nodes.tpl, nodes.ptr, function(id) {
         location.href = `/course.html?id=${id}`;
@@ -82,7 +81,7 @@ window.onscroll = async function() {
     if (top < window.innerHeight) {
         const onscroll = window.onscroll;
         window.onscroll = change_gotobtn;
-        const data = await load_more(page++, size);
+        const data = await load_more(page++);
         if (page < data.Total) {
             window.onscroll = onscroll;
         }
@@ -90,17 +89,32 @@ window.onscroll = async function() {
 }
 
 window.onload = async function() {
+    var selector = document.querySelector('#selector');
+    var header = selector.querySelector('header')
+    header.innerText = category || header.innerText;
+    var tags = selector.querySelector('.tags');
+    categories.forEach((item, i) => {
+        var tag = document.createElement('a');
+        tags.append(tag);
+        tag.innerText = item;
+        tag.href = '/courses.html';
+        if (i > 0) tag.href += `?category=${item}`;
+        if (item == category || (i == 0 && category == '')) {
+            tag.classList.add('selected');
+            tag.removeAttribute('href');
+        }
+    });
+
     var main = document.querySelector("main");
     var footer = document.querySelector("footer");
     const main_top = main.getBoundingClientRect().top;
     const footer_height = footer.getBoundingClientRect().height;
     main.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
 
-    var tag = document.querySelector('footer');
-    var top = tag.getBoundingClientRect().top;
+    var top = footer.getBoundingClientRect().top;
     while (top < window.innerHeight) {
-        const data = await load_more(page++, size);
-        top = tag.getBoundingClientRect().top;
+        const data = await load_more(page++);
+        top = footer.getBoundingClientRect().top;
         if (page >= data.Total) {
             break;
         }

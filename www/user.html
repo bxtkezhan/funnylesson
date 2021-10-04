@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
+        <link rel="stylesheet" href="/css/basic.css" type="text/css">
         <title>User</title>
     </head>
     <style type="text/css" media="screen">
@@ -11,19 +12,35 @@
         }
     </style>
     <body>
-        <h1>User</h1>
-        <ol id="user">
-        </ol>
-        <table id="courses" style="width:100%">
-            <tr>
-                <th>ID</th>
-                <th>Time</th>
-                <th>Title</th>
-                <th>Introduction</th>
-                <th>Image</th>
-                <th>Level</th>
-            </tr>
-        </table> 
+        <nav class="menu">
+            <a class="menu-logo" href="/">
+                <img src="/logo/studydou.png"/>
+            </a>
+            <a class="menu-title" href="/">Studydou</a>
+            <a class="menu-item" href="/courses.html">課程</a>
+            <a class="menu-item" href="/">首頁</a>
+        </nav>
+        <main>
+            <section>
+                <ol id="user">
+                </ol>
+                <table id="courses" style="width:100%">
+                    <tr>
+                        <th>ID</th>
+                        <th>Time</th>
+                        <th>Title</th>
+                        <th>Introduction</th>
+                        <th>Image</th>
+                        <th>Level</th>
+                    </tr>
+                </table> 
+            </section>
+        </main>
+        <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
+            <img src="/icon/down-chevron.png" alt=""/>
+        </a>
+        <center id="loading"></center>
+        <footer></footer>
     </body>
 </html>
 
@@ -39,6 +56,12 @@
 //     Level string
 // }
 window.onload = function() {
+    var main = document.querySelector("main");
+    var footer = document.querySelector("footer");
+    const main_top = main.getBoundingClientRect().top;
+    const footer_height = footer.getBoundingClientRect().height;
+    main.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
+
     loadUser();
     loadLikes();
 };

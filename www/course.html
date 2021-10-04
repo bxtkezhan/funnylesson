@@ -3,30 +3,85 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
+        <link rel="stylesheet" href="/css/basic.css" type="text/css">
         <title>Course</title>
     </head>
-    <style type="text/css" media="screen">
-        table, th, td {
-            border: 1px solid black;
-        }
-    </style>
     <body>
-        <h1>Course</h1>
-        <ol id="course">
-        </ol>
-        <table id="lessons" style="width:100%">
-            <tr>
-                <th>ID</th>
-                <th>Time</th>
-                <th>Title</th>
-                <th>Introduction</th>
-                <th>Image</th>
-                <th>Level</th>
-            </tr>
-        </table> 
+        <nav class="menu">
+            <a class="menu-logo" href="/">
+                <img src="/logo/studydou.png"/>
+            </a>
+            <a class="menu-title" href="/">StudyDou</a>
+            <a class="menu-item" href="/login.html">登錄|註冊</a>
+            <a class="menu-item" href="/courses.html">課程</a>
+        </nav>
+        <main>
+            <section>
+                <div class="container card">
+                    <div>
+                        <iframe class="player" data="HHV3aws5k6U,BV1uV411E76S" allowfullscreen></iframe>
+                    </div>
+                    <div id="course">
+                        <header f-name="Title"></header>
+                        <small f-name="Id"></small>
+                        <a f-name="Category" f-onclick="Category"></a>
+                        <hr>
+                        <p f-name="Introduction"></p>
+                        <time f-name="Time"></time>
+                        <div class="container tags" style="padding-bottom: 0.5rem; max-height: 20rem; overflow-y: auto;">
+                            <a>1</a>
+                            <a>2</a>
+                            <a>3</a>
+                            <a>4</a>
+                            <a>5</a>
+                            <a>6</a>
+                            <a>7</a>
+                            <a>8</a>
+                            <a>9</a>
+                            <a>10</a>
+                            <a>11</a>
+                            <a>12</a>
+                            <a>13</a>
+                            <a>14</a>
+                            <a>15</a>
+                            <a>16</a>
+                            <a>17</a>
+                            <a>18</a>
+                            <a>19</a>
+                            <a>20</a>
+                            <a>21</a>
+                            <a>22</a>
+                            <a>23</a>
+                            <a>24</a>
+                            <a>25</a>
+                            <a>26</a>
+                            <a>27</a>
+                            <a>28</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <header>課時</header>
+                <div class="container gallery">
+                    <div id="lesson">
+                        <img f-name="Image" f-onclick="Id"/>
+                        <header f-name="Title" f-onclick="Id"></header>
+                        <summary f-name="Introduction"></summary>
+                        <time f-name="Time" style="float: right"></time>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
+            <img src="/icon/down-chevron.png" alt=""/>
+        </a>
+        <center id="loading"></center>
+        <footer></footer>
     </body>
 </html>
-
+<script src="/js/functions.js" charset="utf-8"></script>
+<script src="/js/player.js" charset="utf-8"></script>
 <script charset="utf-8">
 // type Course struct {
 //     Id int
@@ -40,42 +95,52 @@
 //     Total int
 //     Level int
 // }
-window.onload = async function() {
-    var id = await loadCourse();
-    loadLessons(id);
-};
 
-async function loadCourse() {
-    var columns = [
-        "Id", "Time", "Title", "Introduction", "Keywords",
-        "Image", "Category", "Total", "Owner", "Level"];
-    const resp = await fetch(`/api/course${window.location.search}`);
-    var course = await resp.json();
-    var list = document.querySelector("#course");
-    var id = 0;
-    for (var i = 0; i < columns.length; ++i) {
-        var column = columns[i];
-        if (column == "Id") id = course[column];
-        var li = document.createElement("li");
-        li.innerText = `${column}: ${course[column]}`;
-        list.appendChild(li);
-    }
-    return id;
-}
+var id = (new URLSearchParams(location.search)).get('id');
+var lessons = null;
 
-async function loadLessons(id) {
-    var columns = ["Id", "Time", "Title", "Introduction", "Image", "Level"];
-    const resp = await fetch(`/api/contents?id=${id}`);
-    var lessons = await resp.json();
-    var table = document.querySelector("#lessons");
-    lessons.forEach(user => {
-        var tr = document.createElement("tr");
-        for (var i = 0; i < columns.length; ++i) {
-            var td = document.createElement("td");
-            td.innerText = user[columns[i]];
-            tr.appendChild(td);
-        }
-        table.appendChild(tr);
+async function render_course() {
+    const course = await load_course(id);
+    var columns = document.querySelector('#course').children;
+    extend_columns(course, columns, function(name) {
+        location.href = `/courses.html?category=${name}`;
     });
+    return course.Id;
 }
+
+async function render_lessons(id) {
+    set_loading('#loading');
+    var data = await load_contents(id);
+    del_loading('#loading');
+    var nodes = select_template('#lesson');
+    extend_items(data, nodes.tpl, nodes.ptr, function(id) {
+        location.href = `/lesson.html?id=${id}`;
+    });
+    return data;
+}
+
+window.onscroll = function() {
+    var navbar = document.querySelector('nav');
+    var bottom = navbar.getBoundingClientRect().bottom;
+    if (bottom < 0) {
+        document.querySelector('#goto').style.visibility = 'visible';
+    } else {
+        document.querySelector('#goto').style.visibility = 'hidden';
+    }
+}
+
+window.onload = async function() {
+    var main = document.querySelector("main");
+    var footer = document.querySelector("footer");
+    const main_top = main.getBoundingClientRect().top;
+    const footer_height = footer.getBoundingClientRect().height;
+    main.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
+
+    id = await render_course();
+    if (id == 0) {
+        location.href = '/courses.html';
+    } else {
+        lessons = await render_lessons(id);
+    }
+};
 </script>

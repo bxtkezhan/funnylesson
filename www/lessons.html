@@ -7,24 +7,32 @@
         <title>Lessons</title>
     </head>
     <body>
-        <nav class="navbar">
-            <a href="/">首頁</a>
-            <a href="/login.html">登錄/註冊</a>
+        <nav class="menu">
+            <a class="menu-logo" href="/">
+                <img src="/logo/studydou.png"/>
+            </a>
+            <a class="menu-title" href="/">StudyDou</a>
+            <a class="menu-item" href="/login.html">登錄|註冊</a>
+            <a class="menu-item" href="/courses.html">課程</a>
         </nav>
-        <div>
-            <article id="lesson">
-                <a f-name="Image" f-type="img" href="/" target="_blank">
-                    <img class="thumbnail"/>
-                </a>
-                <strong f-name="Title"></strong>
-                <p f-name="Introduction"></p>
-                <p f-name="Time"></p>
-                <p f-name="Level"></p>
-            </article>
-        </div>
-        <div>
-            <button id="more" style="width: 100%">更多</button>
-        </div>
+        <main>
+            <section>
+                <header>課時</header>
+                <div class="container gallery">
+                    <div id="lesson">
+                        <img f-name="Image" f-onclick="Id"/>
+                        <header f-name="Title" f-onclick="Id"></header>
+                        <summary f-name="Introduction"></summary>
+                        <time f-name="Time" style="float: right"></time>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
+            <img src="/icon/down-chevron.png" alt=""/>
+        </a>
+        <center id="loading"></center>
+        <footer></footer>
     </body>
 </html>
 <script src="/js/functions.js" charset="utf-8"></script>
@@ -39,40 +47,56 @@
 // }
 
 var nodes = select_template('#lesson');
+var page = 0;
 
-async function load_more(page, size) {
-    var data = await load_lessons(page, size);
-    console.log(data);
-    extend_items(data.Lessons, nodes.tpl, nodes.ptr);
-    var more = document.querySelector('#more');
-    if (data.Page >= data.Total - 1) {
-        more.parentNode.removeChild(more);
+async function load_more(page) {
+    set_loading('#loading');
+    var data = await load_lessons(page, 4);
+    del_loading('#loading');
+    extend_items(data.Lessons, nodes.tpl, nodes.ptr, function(id) {
+        location.href = `/lesson.html?id=${id}`;
+    });
+    return data;
+}
+
+function change_gotobtn() {
+    var navbar = document.querySelector('nav');
+    var bottom = navbar.getBoundingClientRect().bottom;
+    if (bottom < 0) {
+        document.querySelector('#goto').style.visibility = 'visible';
     } else {
-        more.onclick = function() {
-            load_more(page + 1, size);
+        document.querySelector('#goto').style.visibility = 'hidden';
+    }
+}
+
+window.onscroll = async function() {
+    change_gotobtn();
+    var tag = document.querySelector('footer');
+    var top = tag.getBoundingClientRect().top;
+    if (top < window.innerHeight) {
+        const onscroll = window.onscroll;
+        window.onscroll = change_gotobtn;
+        const data = await load_more(page++);
+        if (page < data.Total) {
+            window.onscroll = onscroll;
         }
     }
 }
 
-window.onload = function() {
-    load_more(0, 2);
-};
+window.onload = async function() {
+    var main = document.querySelector("main");
+    var footer = document.querySelector("footer");
+    const main_top = main.getBoundingClientRect().top;
+    const footer_height = footer.getBoundingClientRect().height;
+    main.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
 
-// var columns = ["Id", "Time", "Title", "Introduction", "Image", "Level"];
-// var search = window.location.search;
-// if (search == "") search = "?size=10";
-// window.onload = async function() {
-//     const resp = await fetch(`/api/lessons${search}`);
-//     var lessons = await resp.json();
-//     var table = document.querySelector("#lessons");
-//     lessons.forEach(user => {
-//         var tr = document.createElement("tr");
-//         for (var i = 0; i < columns.length; ++i) {
-//             var td = document.createElement("td");
-//             td.innerText = user[columns[i]];
-//             tr.appendChild(td);
-//         }
-//         table.appendChild(tr);
-//     });
-// };
+    var top = footer.getBoundingClientRect().top;
+    while (top < window.innerHeight) {
+        const data = await load_more(page++);
+        top = footer.getBoundingClientRect().top;
+        if (page >= data.Total) {
+            break;
+        }
+    }
+};
 </script>

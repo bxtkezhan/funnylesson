@@ -76,7 +76,20 @@ footer {
 }
 
 main {
-    padding: 0.5em 5% 0.5em 5%;
+    /* padding: 0.5em 5% 0.5em 5%; */
+}
+
+section {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 1em;
+}
+
+section > header {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    padding: 0.5rem 0;
 }
 
 .container {
@@ -163,14 +176,8 @@ div.gallery > div > time {
 }
 
 div.tags {
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     grid-gap: 0.5rem 0;
-}
-
-@media (max-width: 36em) {
-    div.tags {
-        grid-template-columns: repeat(8, 1fr);
-    }
 }
 
 div.tags > a {
@@ -185,6 +192,12 @@ div.tags > a {
 }
 
 div.tags > a:hover {
+    background-color: var(--base0d);
+    color: var(--base07);
+    border-color: #5689bc;
+}
+
+div.tags > a.selected {
     background-color: var(--base0d);
     color: var(--base07);
     border-color: #5689bc;
@@ -242,9 +255,57 @@ form > div > select {
     font-size: large;
 }
 
+a.button {
+    padding: 0.5rem 1rem 0.4rem 1rem;
+    text-decoration: none;
+}
+
 .button:hover {
     background-color: white;
     color: var(--base0d);
+}
+
+div.card {
+    grid-template-columns: 4fr 3fr;
+    grid-gap: 1em 2em;
+}
+
+@media (max-width: 54em) {
+    div.card {
+        grid-template-columns: 1fr;
+    }
+}
+
+div.card > div > header {
+    display: unset;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+div.card > div > small {
+    font-weight: bold;
+    color: grey;
+}
+
+div.card > div > a {
+    float: right;
+    text-align: center;
+    text-decoration: none;
+    padding: 0.1rem 1rem 0.2rem 1rem;
+    margin: 0.5rem;
+    border-radius: 1rem;
+    border: 2px solid var(--base0d);
+    color: var(--base0d);
+    font-weight: bold;
+}
+
+div.card > div > a:hover {
+    background-color: var(--base0d);
+    color: var(--base07);
+    border-color: #5689bc;
+}
+
+div.card > div > time {
 }
 
 /* loading animation */

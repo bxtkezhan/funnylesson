@@ -23,7 +23,7 @@ func GetMaxIndex(ctx context.Context, course int) (int, error) {
     var rows *sql.Rows
     var err error
     rows, err = DB.QueryContext(ctx,
-        `select max("index") from contents where course = ?`, course)
+        `select case when count(*) > 0 then max("index") else 0 end from contents where course = ?`, course)
     if err != nil {
         return 0, err
     }
