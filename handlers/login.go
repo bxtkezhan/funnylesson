@@ -68,7 +68,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
             session.Values["userid"] = id
             session.Save(r, w)
         }
-        http.Redirect(w, r, "/", http.StatusSeeOther)
+        http.Redirect(w, r, "/user.html", http.StatusSeeOther)
     } else {
         http.Redirect(w, r, "/login.html", http.StatusSeeOther)
     }

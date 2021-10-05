@@ -22,18 +22,34 @@
         </nav>
         <main>
             <section>
-                <ol id="user">
-                </ol>
-                <table id="courses" style="width:100%">
-                    <tr>
-                        <th>ID</th>
-                        <th>Time</th>
-                        <th>Title</th>
-                        <th>Introduction</th>
-                        <th>Image</th>
-                        <th>Level</th>
-                    </tr>
-                </table> 
+                <div class="container user">
+                    <img id="user-picture"></img>
+                    <div id="user-profile" class="profile">
+                        <label>用戶名</label>
+                        <p f-name="Username">kk</p>
+                        <small>#</small><small f-name="Id"></small>
+                        <hr>
+                        <label>電子郵箱</label>
+                        <p f-name="Email"></p>
+                        <hr>
+                        <label>個人簡介</label>
+                        <p f-name="Introduction"></p>
+                        <hr>
+                        <label>註冊時間</label>
+                        <time f-name="Time"></time>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <header>訂閱課程</header>
+                <div class="container gallery">
+                    <div id="course">
+                        <img f-name="Image" f-onclick="Id"/>
+                        <header f-name="Title" f-onclick="Id"></header>
+                        <summary f-name="Introduction"></summary>
+                        <time f-name="Time" style="float: right"></time>
+                    </div>
+                </div>
             </section>
         </main>
         <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
@@ -43,7 +59,7 @@
         <footer></footer>
     </body>
 </html>
-
+<script src="/js/functions.js" charset="utf-8"></script>
 <script charset="utf-8">
 // type User struct {
 //     Id int
@@ -55,6 +71,7 @@
 //     Time int
 //     Level string
 // }
+
 window.onload = function() {
     var main = document.querySelector("main");
     var footer = document.querySelector("footer");
@@ -62,36 +79,34 @@ window.onload = function() {
     const footer_height = footer.getBoundingClientRect().height;
     main.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
 
-    loadUser();
-    loadLikes();
+    render_user();
+    render_likes();
 };
 
-async function loadUser() {
-    var columns = ["Id", "Username", "Email", "Introduction", "Image", "Time", "Level"];
-    const resp = await fetch(`/api/user${window.location.search}`);
-    var user = await resp.json();
-    var list = document.querySelector("#user");
-    for (var i = 0; i < columns.length; ++i) {
-        var column = columns[i];
-        var li = document.createElement("li");
-        li.innerText = `${column}: ${user[column]}`;
-        list.appendChild(li);
+window.onscroll = function() {
+    var navbar = document.querySelector('nav');
+    var bottom = navbar.getBoundingClientRect().bottom;
+    if (bottom < 0) {
+        document.querySelector('#goto').style.visibility = 'visible';
+    } else {
+        document.querySelector('#goto').style.visibility = 'hidden';
     }
+}
+
+async function render_user() {
+    const user = await load_user();
+    var columns = document.querySelector('#user-profile').children;
+    extend_columns(user, columns, null);
+    document.querySelector('#user-picture').src = `https://avatars.dicebear.com/api/big-smile/${user.Username}.svg`;
 };
 
-async function loadLikes() {
-    var columns = ["Id", "Time", "Title", "Introduction", "Image", "Level"];
-    const resp = await fetch(`/api/likes`);
-    var courses = await resp.json();
-    var table = document.querySelector("#courses");
-    courses.forEach(course => {
-        var tr = document.createElement("tr");
-        for (var i = 0; i < columns.length; ++i) {
-            var td = document.createElement("td");
-            td.innerText = course[columns[i]];
-            tr.appendChild(td);
-        }
-        table.appendChild(tr);
+async function render_likes() {
+    set_loading('#loading');
+    var data = await load_likes();
+    del_loading('#loading');
+    var nodes = select_template('#course');
+    extend_items(data, nodes.tpl, nodes.ptr, function(id) {
+        location.href = `/course.html?id=${id}`;
     });
 };
 </script>

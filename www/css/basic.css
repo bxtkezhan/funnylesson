@@ -306,6 +306,60 @@ div.card > div > a:hover {
 }
 
 div.card > div > time {
+    color: var(--base02);
+    padding: 0.1rem 1rem;
+}
+
+div.user {
+    width: 50%;
+    margin: 1rem 20% 0 20%;
+    padding: 2rem 5% 3rem 5%;
+    grid-template-columns: 3fr 4fr;
+    grid-gap: 1em 2em;
+
+    background-color: var(--base07);
+    border: 1px solid var(--base05);
+    border-radius: 10px;
+    box-shadow: 0px 0px 3px 1px var(--base05);
+}
+
+@media (max-width: 54em) {
+    div.user {
+        width: 80%;
+        margin: 1rem 5% 0 5%;
+        padding: 0 5% 1rem 5%;
+        grid-template-columns: 1fr;
+    }
+}
+
+div.user > img {
+    margin: 1rem auto;
+    width: 80%;
+    border-radius: 50%;
+    border: 3px solid var(--base05);
+    background-color: white;
+}
+
+@media (max-width: 54em) {
+    div.user > img {
+        width: 60%;
+    }
+}
+
+div.profile > label {
+    display: block;
+    padding: 0.5rem 0;
+    font-size: large;
+    color: var(--base01);
+}
+
+div.profile > small {
+    color: var(--base02);
+}
+
+div.profile > p {
+    display: inline;
+    padding: 0.25rem 0 0 0.1rem;
 }
 
 /* loading animation */

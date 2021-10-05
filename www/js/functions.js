@@ -64,6 +64,16 @@ async function load_contents(id) {
     return await resp.json();
 }
 
+async function load_user() {
+    const resp = await fetch(`/api/user`);
+    return await resp.json();
+}
+
+async function load_likes() {
+    const resp = await fetch(`/api/likes`);
+    return await resp.json();
+}
+
 function set_loading(id) {
     var box = document.querySelector(id);
     if (box.children.length == 0) {
