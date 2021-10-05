@@ -33,18 +33,19 @@ function setPlayer(isInnerCFW) {
         }
         frame.width = frame.parentElement.clientWidth;
         frame.height = Math.round(frame.width * 9 / 16);
+        frame.style.maxWidth = '100%';
         frame.setAttribute('frameborder', '0');
         frame.setAttribute('allow',
             'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
     });
-    if (isInnerCFW) {
-        ;
-    } else {
-    }
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
-    if (document.querySelectorAll('.player').length > 0) {
-        innerCFW(setPlayer);
-    }
+    innerCFW(setPlayer);
+    window.addEventListener("resize", function() {
+        document.querySelectorAll('.player').forEach(frame => {
+            frame.width = frame.parentElement.clientWidth;
+            frame.height = Math.round(frame.width * 9 / 16);
+        });
+    });
 });

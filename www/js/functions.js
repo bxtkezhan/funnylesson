@@ -10,20 +10,21 @@ function extend_columns(data, columns, onclick) {
     for (var i = 0; i < columns.length; ++i) {
         var column = columns[i];
         var name = column.getAttribute('f-name');
-        if (name == null) continue;
-        var value = data[name];
-        switch (column.tagName) {
-            case 'IMG':
-                column.src = `/img/${value}`;
-                break;
-            case 'TIME':
-                const time = new Date(value * 1000).toLocaleDateString();
-                column.setAttribute('datetime', time);
-                column.innerText = time;
-                break;
-            default:
-                column.innerText = value;
-                break;
+        if (name != null) {
+            var value = data[name];
+            switch (column.tagName) {
+                case 'IMG':
+                    column.src = `/img/${value}`;
+                    break;
+                case 'TIME':
+                    const time = new Date(value * 1000).toLocaleDateString();
+                    column.setAttribute('datetime', time);
+                    column.innerText = time;
+                    break;
+                default:
+                    column.innerText = value;
+                    break;
+            }
         }
         var param = column.getAttribute('f-onclick');
         if (param != null && onclick != null) {
@@ -71,6 +72,12 @@ async function load_user() {
 
 async function load_likes() {
     const resp = await fetch(`/api/likes`);
+    return await resp.json();
+}
+
+async function in_likes(id) {
+    const resp = await fetch(`/api/inlikes?course=${id}`);
+    if (!resp.ok) return false;
     return await resp.json();
 }
 

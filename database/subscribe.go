@@ -19,6 +19,26 @@ func UnFollow(ctx context.Context, user, course int) error {
     return err
 }
 
+func IsFollowed(ctx context.Context, user, course int) (bool, error) {
+    var rows *sql.Rows
+    var err error
+    rows, err = DB.QueryContext(ctx,
+        `select count(*) from subscribe where user = ? and course = ?`, user, course)
+    if err != nil {
+        return false, err
+    }
+    var count int
+    if rows.Next() {
+        if err = rows.Scan(&count); err != nil {
+            return false, err
+        }
+    }
+    if err = rows.Err(); err != nil {
+        return false, err
+    }
+    return count > 0, nil
+}
+
 func CountFollowers(ctx context.Context, course int) (int, error) {
     var rows *sql.Rows
     var err error
@@ -44,7 +64,7 @@ func GetLikes(ctx context.Context, user int) ([]*Course, error) {
     var err error
     courses := []*Course{}
     rows, err = DB.QueryContext(ctx,
-        `select course from subscribe where user = ?`, user)
+        `select course from subscribe where user = ? order by id desc`, user)
     if err != nil {
         return courses, err
     }

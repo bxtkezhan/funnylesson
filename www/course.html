@@ -24,17 +24,10 @@
                     <div id="course">
                         <header f-name="Title"></header>
                         <small>#</small><small f-name="Id"></small>
-                        <a f-name="Category" f-onclick="Category"></a>
+                        <a id="follow"></a>
                         <hr>
                         <p f-name="Introduction"></p>
-                        <div class="container tags" style="padding-bottom: 0.5rem; max-height: 20rem; overflow-y: auto;">
-                            <a>1</a> <a>2</a> <a>3</a> <a>4</a> <a>5</a>
-                            <a>6</a> <a>7</a> <a>8</a> <a>9</a> <a>10</a>
-                            <a>11</a> <a>12</a> <a>13</a> <a>14</a> <a>15</a>
-                            <a>16</a> <a>17</a> <a>18</a> <a>19</a> <a>20</a>
-                            <a>21</a> <a>22</a> <a>23</a> <a>24</a> <a>25</a>
-                            <a>26</a> <a>27</a> <a>28</a>
-                        </div>
+                        <div id="index" class="container tags" style="padding-bottom: 0.5rem; max-height: 20rem; overflow-y: auto;"></div>
                         <time f-name="Time" style="float: right"></time>
                     </div>
                 </div>
@@ -83,6 +76,10 @@ async function render_course() {
     extend_columns(course, columns, function(name) {
         location.href = `/courses.html?category=${name}`;
     });
+    const isFollowd = await in_likes(course.Id);
+    var follow_btn = document.querySelector('#follow');
+    follow_btn.innerText = isFollowd ? '取關' : '關注';
+    follow_btn.href = `/api/${isFollowd ? 'unfollow' : 'follow'}?course=${course.Id}`;
     return course.Id;
 }
 
@@ -90,6 +87,13 @@ async function render_lessons(id) {
     set_loading('#loading');
     var data = await load_contents(id);
     del_loading('#loading');
+    var index = document.querySelector("#index");
+    data.forEach((lesson, id) => {
+        var item = document.createElement('A');
+        index.append(item);
+        item.innerText = lesson.Id;
+        item.setAttribute('onclick', 'alert(123);');
+    })
     var nodes = select_template('#lesson');
     extend_items(data, nodes.tpl, nodes.ptr, function(id) {
         location.href = `/lesson.html?id=${id}`;

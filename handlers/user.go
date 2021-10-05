@@ -15,6 +15,7 @@ func init() {
     SecretRoutes["/user"] = User
     SecretRoutes["/users"] = Users
     SecretRoutes["/likes"] = Likes
+    SecretRoutes["/inlikes"] = InLikes
     SecretRoutes["/follow"] = Follow
     SecretRoutes["/unfollow"] = UnFollow
 }
@@ -72,6 +73,21 @@ func Likes(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
         log.Panic(err)
     }
     Jsonify(w, courses)
+}
+
+func InLikes(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
+    ctx := r.Context()
+    id := s.Values["userid"].(int)
+    course, err := strconv.Atoi(r.URL.Query().Get("course"))
+    if err != nil {
+        log.Println(err)
+        return
+    }
+    flag, err := db.IsFollowed(ctx, id, course)
+    if err != nil {
+        log.Panic(err)
+    }
+    Jsonify(w, flag)
 }
 
 func Follow(w http.ResponseWriter, r *http.Request, s *sessions.Session) {

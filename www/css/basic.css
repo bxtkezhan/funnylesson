@@ -185,6 +185,7 @@ div.tags > a {
     text-decoration: none;
     padding: 0.5rem 0;
     margin: 0 0.5rem;
+    cursor: pointer;
     border-radius: 1rem;
     border: 2px solid var(--base0d);
     color: var(--base0d);
@@ -248,11 +249,12 @@ form > div > select {
 
 .button {
     border: 1px solid var(--base0d);
-    padding: 0.1rem 1rem 0.2rem 1rem;
+    padding: 0.15rem 1rem 0.3rem 1rem;
     cursor: pointer;
     background-color: var(--base0d);
     color: white;
     font-size: large;
+    text-align: center;
 }
 
 a.button {
@@ -295,13 +297,14 @@ div.card > div > a {
     margin: 0.5rem;
     border-radius: 1rem;
     border: 2px solid var(--base0d);
-    color: var(--base0d);
+    background-color: var(--base0d);
+    color: var(--base07);
     font-weight: bold;
 }
 
 div.card > div > a:hover {
-    background-color: var(--base0d);
-    color: var(--base07);
+    background-color: white;
+    color: var(--base0d);
     border-color: #5689bc;
 }
 
