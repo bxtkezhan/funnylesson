@@ -7,14 +7,7 @@
         <title>Index</title>
     </head>
     <body>
-        <nav class="menu">
-            <a class="menu-logo" href="/">
-                <img src="/logo/studydou.png"/>
-            </a>
-            <a class="menu-title" href="/">StudyDou</a>
-            <a class="menu-item" href="/login.html">登錄|註冊</a>
-            <a class="menu-item" href="/">首頁</a>
-        </nav>
+        <nav id="menu" class="menu"></nav>
         <main>
             <section id="selector" style="max-width: 60%">
                 <header>課程</header>
@@ -25,6 +18,7 @@
                     <div id="course">
                         <img f-name="Image" f-onclick="Id"/>
                         <header f-name="Title" f-onclick="Id"></header>
+                        <small>#</small><small f-name="Id"></small>
                         <summary f-name="Introduction"></summary>
                         <time f-name="Time" style="float: right"></time>
                     </div>
@@ -89,6 +83,7 @@ window.onscroll = async function() {
 }
 
 window.onload = async function() {
+    create_menu('#menu', [{href: '/', text: '首頁'}]);
     var selector = document.querySelector('#selector');
     var header = selector.querySelector('header')
     header.innerText = category || header.innerText;

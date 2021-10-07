@@ -77,5 +77,5 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func Logout(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
     s.Values["userid"] = 0
     s.Save(r, w)
-    http.Redirect(w, r, "/login.html", http.StatusSeeOther)
+    http.Redirect(w, r, "/login.html?from=logout", http.StatusSeeOther)
 }

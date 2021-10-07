@@ -131,10 +131,11 @@ div.gallery > div > img {
 }
 
 div.gallery > div > header {
+    display: inline-block;
     color: var(--base0d);
     font-weight: bold;
     font-size: large;
-    padding: 0.1rem 1rem;
+    padding: 0.1rem 0 0.1rem 1rem;
 }
 
 div.gallery > div:hover > header {
@@ -151,6 +152,11 @@ div.gallery > div > time {
     color: var(--base03);
     font-size: small;
     padding: 0.1rem 1rem;
+}
+
+div.gallery > div > small {
+    color: var(--base03);
+    font-size: small;
 }
 
 .goto-btn {
@@ -270,11 +276,15 @@ a.button {
 div.card {
     grid-template-columns: 4fr 3fr;
     grid-gap: 1em 2em;
+    border: 1px solid grey;
+    box-shadow: 1px 2px 4px 1px grey;
+    padding: 1rem;
 }
 
 @media (max-width: 54em) {
     div.card {
         grid-template-columns: 1fr;
+        padding: 0.5rem;
     }
 }
 
@@ -314,8 +324,8 @@ div.card > div > time {
 }
 
 div.user {
-    width: 50%;
-    margin: 1rem 20% 0 20%;
+    width: 60%;
+    margin: 1rem 15% 0 15%;
     padding: 2rem 5% 3rem 5%;
     grid-template-columns: 3fr 4fr;
     grid-gap: 1em 2em;
@@ -363,6 +373,12 @@ div.profile > small {
 div.profile > p {
     display: inline;
     padding: 0.25rem 0 0 0.1rem;
+}
+
+iframe.player {
+    max-width: 100%;
+    /* border: 1px solid grey; */
+    /* box-shadow: 1px 2px 4px 1px grey; */
 }
 
 /* loading animation */

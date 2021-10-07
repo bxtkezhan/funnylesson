@@ -7,24 +7,21 @@
         <title>Course</title>
     </head>
     <body>
-        <nav class="menu">
-            <a class="menu-logo" href="/">
-                <img src="/logo/studydou.png"/>
-            </a>
-            <a class="menu-title" href="/">StudyDou</a>
-            <a class="menu-item" href="/login.html">登錄|註冊</a>
-            <a class="menu-item" href="/courses.html">課程</a>
-        </nav>
+        <nav id="menu" class="menu"></nav>
         <main>
             <section>
                 <div class="container card">
-                    <div>
-                        <iframe class="player" data="HHV3aws5k6U,BV1uV411E76S" allowfullscreen></iframe>
+                    <div id="lesson">
+                        <iframe id="player" class="player" data="HHV3aws5k6U,BV1uV411E76S" allowfullscreen></iframe>
+                        <header f-name="Title"></header>
+                        <small>#</small><small f-name="Id"></small>
+                        <hr>
+                        <p f-name="Introduction"></p>
                     </div>
                     <div id="course">
                         <header f-name="Title"></header>
                         <small>#</small><small f-name="Id"></small>
-                        <a id="follow"></a>
+                        <a id="follow" style="cursor: pointer"></a>
                         <hr>
                         <p f-name="Introduction"></p>
                         <div id="index" class="container tags" style="padding-bottom: 0.5rem; max-height: 20rem; overflow-y: auto;"></div>
@@ -35,9 +32,10 @@
             <section>
                 <header>課時</header>
                 <div class="container gallery">
-                    <div id="lesson">
+                    <div id="lesson-item">
                         <img f-name="Image" f-onclick="Id"/>
                         <header f-name="Title" f-onclick="Id"></header>
+                        <small>#</small><small f-name="Id"></small>
                         <summary f-name="Introduction"></summary>
                         <time f-name="Time" style="float: right"></time>
                     </div>
@@ -69,6 +67,8 @@
 
 var id = (new URLSearchParams(location.search)).get('id');
 var lessons = null;
+var isfollowd = false;
+var followbtn = document.querySelector('#follow');
 
 async function render_course() {
     const course = await load_course(id);
@@ -76,34 +76,57 @@ async function render_course() {
     extend_columns(course, columns, function(name) {
         location.href = `/courses.html?category=${name}`;
     });
-    const isFollowd = await in_likes(course.Id);
-    var follow_btn = document.querySelector('#follow');
-    follow_btn.innerText = isFollowd ? '取關' : '關注';
-    follow_btn.href = `/api/${isFollowd ? 'unfollow' : 'follow'}?course=${course.Id}`;
+    isfollowd = await in_likes(course.Id);
+    followbtn.innerText = isfollowd ? '取關' : '關注';
+    followbtn.onclick = async function() {
+        var url = `/api/unfollow?course=${course.Id}`;
+        if (!isfollowd) {
+            url = `/api/follow?course=${course.Id}`;
+        }
+        const resp = await fetch(url);
+        if (resp.ok) {
+            isfollowd = !isfollowd;
+            followbtn.innerText = isfollowd ? '取關' : '關注';
+        } else if (resp.status == 403) {
+            location.href = `/login.html`;
+        }
+    };
     return course.Id;
 }
 
 async function render_lessons(id) {
     set_loading('#loading');
-    var data = await load_contents(id);
+    const data = await load_contents(id);
     del_loading('#loading');
     var index = document.querySelector("#index");
     data.forEach((lesson, id) => {
         var item = document.createElement('A');
         index.append(item);
         item.innerText = lesson.Id;
-        item.setAttribute('onclick', 'alert(123);');
+        item.onclick = function() {
+            set_player('#player', lesson.Source, 1);
+            var columns = document.querySelector('#lesson').children;
+            extend_columns(lesson, columns, null);
+        };
     })
-    var nodes = select_template('#lesson');
+    var nodes = select_template('#lesson-item');
     extend_items(data, nodes.tpl, nodes.ptr, function(id) {
-        location.href = `/lesson.html?id=${id}`;
+        var lesson = data[id - 1];
+        set_player('#player', lesson.Source, 1);
+        var columns = document.querySelector('#lesson').children;
+        extend_columns(lesson, columns, null);
     });
+    if (data.length > 0) {
+        set_player('#player', data[0].Source);
+        var columns = document.querySelector('#lesson').children;
+        extend_columns(data[0], columns, null);
+    }
     return data;
 }
 
 window.onscroll = function() {
-    var navbar = document.querySelector('nav');
-    var bottom = navbar.getBoundingClientRect().bottom;
+    var iframe = document.querySelector('iframe');
+    var bottom = iframe.getBoundingClientRect().bottom;
     if (bottom < 0) {
         document.querySelector('#goto').style.visibility = 'visible';
     } else {
@@ -112,6 +135,7 @@ window.onscroll = function() {
 }
 
 window.onload = async function() {
+    create_menu('#menu', [{href: '/courses.html', text: '課程'}]);
     var main = document.querySelector("main");
     var footer = document.querySelector("footer");
     const main_top = main.getBoundingClientRect().top;

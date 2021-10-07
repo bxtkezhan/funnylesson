@@ -7,14 +7,7 @@
         <title>Lessons</title>
     </head>
     <body>
-        <nav class="menu">
-            <a class="menu-logo" href="/">
-                <img src="/logo/studydou.png"/>
-            </a>
-            <a class="menu-title" href="/">StudyDou</a>
-            <a class="menu-item" href="/login.html">登錄|註冊</a>
-            <a class="menu-item" href="/courses.html">課程</a>
-        </nav>
+        <nav id="menu" class="menu"> </nav>
         <main>
             <section>
                 <header>課時</header>
@@ -22,6 +15,7 @@
                     <div id="lesson">
                         <img f-name="Image" f-onclick="Id"/>
                         <header f-name="Title" f-onclick="Id"></header>
+                        <small>#</small><small f-name="Id"></small>
                         <summary f-name="Introduction"></summary>
                         <time f-name="Time" style="float: right"></time>
                     </div>
@@ -84,6 +78,7 @@ window.onscroll = async function() {
 }
 
 window.onload = async function() {
+    create_menu('#menu', [{href: '/', text: '首頁'}]);
     var main = document.querySelector("main");
     var footer = document.querySelector("footer");
     const main_top = main.getBoundingClientRect().top;

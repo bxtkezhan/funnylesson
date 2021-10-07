@@ -12,25 +12,21 @@
         }
     </style>
     <body>
-        <nav class="menu">
-            <a class="menu-logo" href="/">
-                <img src="/logo/studydou.png"/>
-            </a>
-            <a class="menu-title" href="/">Studydou</a>
-            <a class="menu-item" href="/courses.html">課程</a>
-            <a class="menu-item" href="/">首頁</a>
-        </nav>
+        <nav id="menu" class="menu"></nav>
         <main>
             <section>
                 <div class="container user">
                     <img id="user-picture"></img>
                     <div id="user-profile" class="profile">
                         <label>用戶名</label>
-                        <p f-name="Username">kk</p>
+                        <p f-name="Username"></p>
                         <small>#</small><small f-name="Id"></small>
                         <hr>
                         <label>電子郵箱</label>
                         <p f-name="Email"></p>
+                        <hr>
+                        <label>身份</label>
+                        <p f-name="Level" f-switch="普通;VIP;員工;管理員"></p>
                         <hr>
                         <label>個人簡介</label>
                         <p f-name="Introduction"></p>
@@ -98,6 +94,7 @@ async function render_user() {
     var columns = document.querySelector('#user-profile').children;
     extend_columns(user, columns, null);
     document.querySelector('#user-picture').src = `https://avatars.dicebear.com/api/big-smile/${user.Username}.svg`;
+    create_menu('#menu', [{href: '/courses.html', text: '課程'}]);
 };
 
 async function render_likes() {

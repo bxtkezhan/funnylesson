@@ -34,6 +34,10 @@ function extend_columns(data, columns, onclick) {
             };
             column.style.cursor = "pointer";
         }
+        var cases = column.getAttribute('f-switch');
+        if (cases != null && name != null) {
+            column.innerText = cases.split(';')[column.innerText];
+        }
     }
 }
 
@@ -67,6 +71,13 @@ async function load_contents(id) {
 
 async function load_user() {
     const resp = await fetch(`/api/user`);
+    if (resp.status == 403) {
+        location.href = '/login.html';
+        return;
+    }
+    if (resp.ok) {
+        localStorage.setItem('fl-login', true);
+    }
     return await resp.json();
 }
 
@@ -106,4 +117,46 @@ function offset_footer(tag_id, footer_id) {
     const main_top = tag.getBoundingClientRect().top;
     const footer_height = footer.getBoundingClientRect().height;
     tag.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
+}
+
+function check_login() {
+    if ((new URLSearchParams(location.search)).get('from') == 'logout') {
+        localStorage.removeItem('fl-login')
+    }
+}
+
+function create_menu(id, items=[]) {
+    var node = document.querySelector(id);
+    var link = document.createElement('A');
+    link.classList.add('menu-logo');
+    link.setAttribute('href', '/');
+    node.append(link);
+    var logo = document.createElement('IMG');
+    logo.setAttribute('src', '/logo/studydou.png');
+    link.append(logo);
+    var head = document.createElement('A');
+    head.classList.add('menu-title');
+    head.setAttribute('href', '/');
+    head.innerText = 'StudyDou';
+    node.append(head);
+    var item = document.createElement('A');
+    item.classList.add('menu-item');
+    if (localStorage.getItem('fl-login') != 'true') {
+        item.setAttribute('href', '/login.html');
+        item.innerText = '登錄|註冊';
+    } else if (location.pathname == '/user.html'){
+        item.setAttribute('href', '/api/logout');
+        item.innerText = '登出';
+    } else {
+        item.setAttribute('href', '/user.html');
+        item.innerText = '個人主頁';
+    }
+    node.append(item);
+    items.forEach(item => {
+        var a = document.createElement('A');
+        a.classList.add('menu-item');
+        a.setAttribute('href', item.href);
+        a.innerText = item.text;
+        node.append(a);
+    });
 }

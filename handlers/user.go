@@ -1,7 +1,6 @@
 package handlers
 
 import (
-    "fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -101,9 +100,6 @@ func Follow(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
     if err = db.Follow(ctx, user, course); err != nil {
         log.Panic(err)
     }
-    http.Redirect(w, r,
-        fmt.Sprintf("/course.html?id=%d", course),
-        http.StatusSeeOther)
 }
 
 func UnFollow(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
@@ -117,7 +113,4 @@ func UnFollow(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
     if err = db.UnFollow(ctx, user, course); err != nil {
         log.Panic(err)
     }
-    http.Redirect(w, r,
-        fmt.Sprintf("/course.html?id=%d", course),
-        http.StatusSeeOther)
 }

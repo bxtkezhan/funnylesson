@@ -7,14 +7,7 @@
         <title>Index</title>
     </head>
     <body>
-        <nav class="menu">
-            <a class="menu-logo" href="/">
-                <img src="/logo/studydou.png"/>
-            </a>
-            <a class="menu-title" href="/">StudyDou</a>
-            <a class="menu-item" href="/login.html">登錄|註冊</a>
-            <a class="menu-item" href="/courses.html">課程</a>
-        </nav>
+        <nav id="menu" class="menu"></nav>
         <main>
             <section id="selector" style="max-width: 60%">
                 <header></header>
@@ -26,6 +19,7 @@
                     <div id="course">
                         <img f-name="Image" f-onclick="Id"/>
                         <header f-name="Title" f-onclick="Id"></header>
+                        <small>#</small><small f-name="Id"></small>
                         <summary f-name="Introduction"></summary>
                         <time f-name="Time" style="float: right"></time>
                     </div>
@@ -86,6 +80,7 @@ window.onscroll = function () {
 };
 
 window.onload = function() {
+    create_menu('#menu', [{href: '/courses.html', text: '課程'}]);
     var selector = document.querySelector('#selector');
     var tags = selector.querySelector('.tags');
     categories.forEach((item, i) => {
