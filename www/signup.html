@@ -7,14 +7,7 @@
         <title>User</title>
     </head>
     <body>
-        <nav class="menu">
-            <a class="menu-logo" href="/">
-                <img src="/logo/studydou.png"/>
-            </a>
-            <a class="menu-title" href="/">StudyDou</a>
-            <a class="menu-item" href="/courses.html">課程</a>
-            <a class="menu-item" href="/">首頁</a>
-        </nav>
+        <nav id="menu" class="menu"></nav>
         <main>
             <section>
                 <form action="/api/signup" method="post" accept-charset="utf-8">
@@ -37,6 +30,6 @@
         </main>
     </body>
 </html>
-
-<script charset="utf-8">
-</script>
+<script src="/js/functions.js" charset="utf-8"></script>
+<script src="/js/modules.js" charset="utf-8"></script>
+<script charset="utf-8"> window.onload = fl_signup; </script>

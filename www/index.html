@@ -9,11 +9,11 @@
     <body>
         <nav id="menu" class="menu"></nav>
         <main>
-            <section id="selector" style="max-width: 60%">
+            <section id="classes" style="max-width: 60%">
                 <header></header>
                 <div class="container tags"></div>
             </section>
-            <section class="courses" f-name="語文">
+            <section id="courses" class="courses">
                 <header></header>
                 <div class="container gallery">
                     <div id="course">
@@ -28,79 +28,16 @@
                     <a class="button" href="/courses.html">更多課程</a>
                 </div>
             </section>
-            <section class="courses" f-name="數學">
-                <header></header>
-                <div class="container gallery"></div>
-                <div style="text-align: center; margin-top: 2em">
-                    <a class="button" href="/courses.html">更多課程</a>
-                </div>
-            </section>
-            <section class="courses" f-name="英語">
-                <header></header>
-                <div class="container gallery"></div>
-                <div style="text-align: center; margin-top: 2em">
-                    <a class="button" href="/courses.html">更多課程</a>
-                </div>
-            </section>
-            <section class="courses" f-name="物理">
-                <header></header>
-                <div class="container gallery"></div>
-                <div style="text-align: center; margin-top: 2em">
-                    <a class="button" href="/courses.html">更多課程</a>
-                </div>
-            </section>
         </main>
-        <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
+        <a id="goto" class="goto-btn">
             <img src="/icon/down-chevron.png" alt=""/>
         </a>
         <footer></footer>
     </body>
 </html>
 <script src="/js/functions.js" charset="utf-8"></script>
+<script src="/js/modules.js" charset="utf-8"></script>
 <script charset="utf-8">
-// type CourseSummary struct {
-//     Id int
-//     Time int64
-//     Title string
-//     Introduction string
-//     Image string
-//     Level int
-// }
-
 const categories = ['全部', '語文' ,'數學', '英語', '物理'];
-
-window.onscroll = function () {
-    var navbar = document.querySelector('nav');
-    var bottom = navbar.getBoundingClientRect().bottom;
-    if (bottom < 0) {
-        document.querySelector('#goto').style.visibility = 'visible';
-    } else {
-        document.querySelector('#goto').style.visibility = 'hidden';
-    }
-};
-
-window.onload = function() {
-    create_menu('#menu', [{href: '/courses.html', text: '課程'}]);
-    var selector = document.querySelector('#selector');
-    var tags = selector.querySelector('.tags');
-    categories.forEach((item, i) => {
-        var tag = document.createElement('a');
-        tag.innerText = item;
-        tag.href = '/courses.html';
-        if (i > 0) tag.href += `?category=${item}`;
-        tags.append(tag);
-    });
-
-    var tpl = select_template('#course').tpl;
-    var sections = document.querySelectorAll('.courses');
-    sections.forEach(async function(section) {
-        const category = section.getAttribute('f-name');
-        const data = await load_courses(0, 12, category);
-        section.querySelector('header').innerText = category;
-        var ptr = section.querySelector('.gallery');
-        extend_items(data.Courses, tpl, ptr, function(id) {
-            location.href = `/course.html?id=${id}`;
-        });
-    });
-};
+window.onload = function() { fl_index(categories); };
 </script>

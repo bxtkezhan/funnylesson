@@ -9,7 +9,7 @@
     <body>
         <nav id="menu" class="menu"></nav>
         <main>
-            <section id="selector" style="max-width: 60%">
+            <section id="classes" style="max-width: 60%">
                 <header>課程</header>
                 <div class="container tags"></div>
             </section>
@@ -25,7 +25,7 @@
                 </div>
             </section>
         </main>
-        <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
+        <a id="goto" class="goto-btn">
             <img src="/icon/down-chevron.png" alt=""/>
         </a>
         <center id="loading"></center>
@@ -33,86 +33,8 @@
     </body>
 </html>
 <script src="/js/functions.js" charset="utf-8"></script>
+<script src="/js/modules.js" charset="utf-8"></script>
 <script charset="utf-8">
-// type CourseSummary struct {
-//     Id int
-//     Time int64
-//     Title string
-//     Introduction string
-//     Image string
-//     Level int
-// }
-
 const categories = ['全部', '語文' ,'數學', '英語', '物理'];
-const category = (new URLSearchParams(location.search)).get('category') || '';
-var nodes = select_template('#course');
-var page = 0;
-
-async function load_more(page) {
-    set_loading('#loading');
-    var data = await load_courses(page, 4, category);
-    del_loading('#loading');
-    extend_items(data.Courses, nodes.tpl, nodes.ptr, function(id) {
-        location.href = `/course.html?id=${id}`;
-    });
-    return data;
-}
-
-function change_gotobtn() {
-    var navbar = document.querySelector('nav');
-    var bottom = navbar.getBoundingClientRect().bottom;
-    if (bottom < 0) {
-        document.querySelector('#goto').style.visibility = 'visible';
-    } else {
-        document.querySelector('#goto').style.visibility = 'hidden';
-    }
-}
-
-window.onscroll = async function() {
-    change_gotobtn();
-    var tag = document.querySelector('footer');
-    var top = tag.getBoundingClientRect().top;
-    if (top < window.innerHeight) {
-        const onscroll = window.onscroll;
-        window.onscroll = change_gotobtn;
-        const data = await load_more(page++);
-        if (page < data.Total) {
-            window.onscroll = onscroll;
-        }
-    }
-}
-
-window.onload = async function() {
-    create_menu('#menu', [{href: '/', text: '首頁'}]);
-    var selector = document.querySelector('#selector');
-    var header = selector.querySelector('header')
-    header.innerText = category || header.innerText;
-    var tags = selector.querySelector('.tags');
-    categories.forEach((item, i) => {
-        var tag = document.createElement('a');
-        tags.append(tag);
-        tag.innerText = item;
-        tag.href = '/courses.html';
-        if (i > 0) tag.href += `?category=${item}`;
-        if (item == category || (i == 0 && category == '')) {
-            tag.classList.add('selected');
-            tag.removeAttribute('href');
-        }
-    });
-
-    var main = document.querySelector("main");
-    var footer = document.querySelector("footer");
-    const main_top = main.getBoundingClientRect().top;
-    const footer_height = footer.getBoundingClientRect().height;
-    main.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
-
-    var top = footer.getBoundingClientRect().top;
-    while (top < window.innerHeight) {
-        const data = await load_more(page++);
-        top = footer.getBoundingClientRect().top;
-        if (page >= data.Total) {
-            break;
-        }
-    }
-};
+window.onload = async function() { fl_courses(categories); };
 </script>

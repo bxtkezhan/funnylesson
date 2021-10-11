@@ -22,7 +22,7 @@
                 </div>
             </section>
         </main>
-        <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
+        <a id="goto" class="goto-btn">
             <img src="/icon/down-chevron.png" alt=""/>
         </a>
         <center id="loading"></center>
@@ -30,68 +30,5 @@
     </body>
 </html>
 <script src="/js/functions.js" charset="utf-8"></script>
-<script charset="utf-8">
-// type LessonSummary struct {
-//     Id int
-//     Time int64
-//     Title string
-//     Introduction string
-//     Image string
-//     Level int
-// }
-
-var nodes = select_template('#lesson');
-var page = 0;
-
-async function load_more(page) {
-    set_loading('#loading');
-    var data = await load_lessons(page, 4);
-    del_loading('#loading');
-    extend_items(data.Lessons, nodes.tpl, nodes.ptr, function(id) {
-        location.href = `/lesson.html?id=${id}`;
-    });
-    return data;
-}
-
-function change_gotobtn() {
-    var navbar = document.querySelector('nav');
-    var bottom = navbar.getBoundingClientRect().bottom;
-    if (bottom < 0) {
-        document.querySelector('#goto').style.visibility = 'visible';
-    } else {
-        document.querySelector('#goto').style.visibility = 'hidden';
-    }
-}
-
-window.onscroll = async function() {
-    change_gotobtn();
-    var tag = document.querySelector('footer');
-    var top = tag.getBoundingClientRect().top;
-    if (top < window.innerHeight) {
-        const onscroll = window.onscroll;
-        window.onscroll = change_gotobtn;
-        const data = await load_more(page++);
-        if (page < data.Total) {
-            window.onscroll = onscroll;
-        }
-    }
-}
-
-window.onload = async function() {
-    create_menu('#menu', [{href: '/', text: '首頁'}]);
-    var main = document.querySelector("main");
-    var footer = document.querySelector("footer");
-    const main_top = main.getBoundingClientRect().top;
-    const footer_height = footer.getBoundingClientRect().height;
-    main.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
-
-    var top = footer.getBoundingClientRect().top;
-    while (top < window.innerHeight) {
-        const data = await load_more(page++);
-        top = footer.getBoundingClientRect().top;
-        if (page >= data.Total) {
-            break;
-        }
-    }
-};
-</script>
+<script src="/js/modules.js" charset="utf-8"></script>
+<script charset="utf-8"> window.onload = fl_lessons; </script>

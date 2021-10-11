@@ -12,7 +12,7 @@
             <section>
                 <div class="container card">
                     <div id="lesson">
-                        <iframe id="player" class="player" data="HHV3aws5k6U,BV1uV411E76S" allowfullscreen></iframe>
+                        <iframe id="player" class="player" allowfullscreen></iframe>
                         <header f-name="Title"></header>
                         <small>#</small><small f-name="Id"></small>
                         <hr>
@@ -24,7 +24,7 @@
                         <a id="follow" style="cursor: pointer"></a>
                         <hr>
                         <p f-name="Introduction"></p>
-                        <div id="index" class="container tags" style="padding-bottom: 0.5rem; max-height: 20rem; overflow-y: auto;"></div>
+                        <div id="index" class="container tags"></div>
                         <time f-name="Time" style="float: right"></time>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                 </div>
             </section>
         </main>
-        <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
+        <a id="goto" class="goto-btn">
             <img src="/icon/down-chevron.png" alt=""/>
         </a>
         <center id="loading"></center>
@@ -50,103 +50,6 @@
     </body>
 </html>
 <script src="/js/functions.js" charset="utf-8"></script>
+<script src="/js/modules.js" charset="utf-8"></script>
 <script src="/js/player.js" charset="utf-8"></script>
-<script charset="utf-8">
-// type Course struct {
-//     Id int
-//     Time int64
-//     Title string
-//     Introduction string
-//     Keywords string
-//     Image string
-//     Category string
-//     Owner int
-//     Total int
-//     Level int
-// }
-
-var id = (new URLSearchParams(location.search)).get('id');
-var lessons = null;
-var isfollowd = false;
-var followbtn = document.querySelector('#follow');
-
-async function render_course() {
-    const course = await load_course(id);
-    var columns = document.querySelector('#course').children;
-    extend_columns(course, columns, function(name) {
-        location.href = `/courses.html?category=${name}`;
-    });
-    isfollowd = await in_likes(course.Id);
-    followbtn.innerText = isfollowd ? '取關' : '關注';
-    followbtn.onclick = async function() {
-        var url = `/api/unfollow?course=${course.Id}`;
-        if (!isfollowd) {
-            url = `/api/follow?course=${course.Id}`;
-        }
-        const resp = await fetch(url);
-        if (resp.ok) {
-            isfollowd = !isfollowd;
-            followbtn.innerText = isfollowd ? '取關' : '關注';
-        } else if (resp.status == 403) {
-            location.href = `/login.html`;
-        }
-    };
-    return course.Id;
-}
-
-async function render_lessons(id) {
-    set_loading('#loading');
-    const data = await load_contents(id);
-    del_loading('#loading');
-    var index = document.querySelector("#index");
-    data.forEach((lesson, id) => {
-        var item = document.createElement('A');
-        index.append(item);
-        item.innerText = lesson.Id;
-        item.onclick = function() {
-            set_player('#player', lesson.Source, 1);
-            var columns = document.querySelector('#lesson').children;
-            extend_columns(lesson, columns, null);
-        };
-    })
-    var nodes = select_template('#lesson-item');
-    extend_items(data, nodes.tpl, nodes.ptr, function(id) {
-        var lesson = data[id - 1];
-        set_player('#player', lesson.Source, 1);
-        var columns = document.querySelector('#lesson').children;
-        extend_columns(lesson, columns, null);
-    });
-    if (data.length > 0) {
-        set_player('#player', data[0].Source);
-        var columns = document.querySelector('#lesson').children;
-        extend_columns(data[0], columns, null);
-    }
-    return data;
-}
-
-window.onscroll = function() {
-    var iframe = document.querySelector('iframe');
-    var bottom = iframe.getBoundingClientRect().bottom;
-    if (bottom < 0) {
-        document.querySelector('#goto').style.visibility = 'visible';
-    } else {
-        document.querySelector('#goto').style.visibility = 'hidden';
-    }
-}
-
-window.onload = async function() {
-    create_menu('#menu', [{href: '/courses.html', text: '課程'}]);
-    var main = document.querySelector("main");
-    var footer = document.querySelector("footer");
-    const main_top = main.getBoundingClientRect().top;
-    const footer_height = footer.getBoundingClientRect().height;
-    main.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
-
-    id = await render_course();
-    if (id == 0) {
-        location.href = '/courses.html';
-    } else {
-        lessons = await render_lessons(id);
-    }
-};
-</script>
+<script charset="utf-8"> window.onload = fl_course; </script>

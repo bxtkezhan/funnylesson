@@ -1,3 +1,26 @@
+function set_goto(btn, tag) {
+    var navbar = document.querySelector(tag);
+    var button = document.querySelector(btn);
+    button.onclick = function() {
+        window.scrollTo(0, 0);
+    };
+    document.addEventListener('scroll', function() {
+        if (navbar.getBoundingClientRect().bottom < 0) {
+            button.style.visibility = 'visible';
+        } else {
+            button.style.visibility = 'hidden';
+        }
+    });
+}
+
+function set_height(object, limit) {
+    var U = document.querySelector(object);
+    var D = document.querySelector(limit);
+    const top = U.getBoundingClientRect().top;
+    const height = D.getBoundingClientRect().height;
+    U.style.minHeight = window.innerHeight - top - height + 'px';
+}
+
 function select_template(id) {
     var template = document.querySelector(id);
     var container = template.parentNode;
@@ -111,52 +134,8 @@ function del_loading(id) {
     }
 }
 
-function offset_footer(tag_id, footer_id) {
-    var tag = document.querySelector(tag_id);
-    var footer = document.querySelector(footer_id);
-    const main_top = tag.getBoundingClientRect().top;
-    const footer_height = footer.getBoundingClientRect().height;
-    tag.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
-}
-
-function check_login() {
+function check_logout() {
     if ((new URLSearchParams(location.search)).get('from') == 'logout') {
-        localStorage.removeItem('fl-login')
+        localStorage.removeItem('fl-login');
     }
-}
-
-function create_menu(id, items=[]) {
-    var node = document.querySelector(id);
-    var link = document.createElement('A');
-    link.classList.add('menu-logo');
-    link.setAttribute('href', '/');
-    node.append(link);
-    var logo = document.createElement('IMG');
-    logo.setAttribute('src', '/logo/studydou.png');
-    link.append(logo);
-    var head = document.createElement('A');
-    head.classList.add('menu-title');
-    head.setAttribute('href', '/');
-    head.innerText = 'StudyDou';
-    node.append(head);
-    var item = document.createElement('A');
-    item.classList.add('menu-item');
-    if (localStorage.getItem('fl-login') != 'true') {
-        item.setAttribute('href', '/login.html');
-        item.innerText = '登錄|註冊';
-    } else if (location.pathname == '/user.html'){
-        item.setAttribute('href', '/api/logout');
-        item.innerText = '登出';
-    } else {
-        item.setAttribute('href', '/user.html');
-        item.innerText = '個人主頁';
-    }
-    node.append(item);
-    items.forEach(item => {
-        var a = document.createElement('A');
-        a.classList.add('menu-item');
-        a.setAttribute('href', item.href);
-        a.innerText = item.text;
-        node.append(a);
-    });
 }

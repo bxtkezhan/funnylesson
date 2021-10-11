@@ -6,11 +6,6 @@
         <link rel="stylesheet" href="/css/basic.css" type="text/css">
         <title>User</title>
     </head>
-    <style type="text/css" media="screen">
-        table, th, td {
-            border: 1px solid black;
-        }
-    </style>
     <body>
         <nav id="menu" class="menu"></nav>
         <main>
@@ -48,7 +43,7 @@
                 </div>
             </section>
         </main>
-        <a id="goto" class="goto-btn" onclick="window.scrollTo(0, 0);">
+        <a id="goto" class="goto-btn">
             <img src="/icon/down-chevron.png" alt=""/>
         </a>
         <center id="loading"></center>
@@ -56,54 +51,5 @@
     </body>
 </html>
 <script src="/js/functions.js" charset="utf-8"></script>
-<script charset="utf-8">
-// type User struct {
-//     Id int
-//     Username string
-//     - Password string
-//     Email string
-//     Introduction string
-//     Image string
-//     Time int
-//     Level string
-// }
-
-window.onload = function() {
-    var main = document.querySelector("main");
-    var footer = document.querySelector("footer");
-    const main_top = main.getBoundingClientRect().top;
-    const footer_height = footer.getBoundingClientRect().height;
-    main.style.minHeight = window.innerHeight - main_top - footer_height + 'px';
-
-    render_user();
-    render_likes();
-};
-
-window.onscroll = function() {
-    var navbar = document.querySelector('nav');
-    var bottom = navbar.getBoundingClientRect().bottom;
-    if (bottom < 0) {
-        document.querySelector('#goto').style.visibility = 'visible';
-    } else {
-        document.querySelector('#goto').style.visibility = 'hidden';
-    }
-}
-
-async function render_user() {
-    const user = await load_user();
-    var columns = document.querySelector('#user-profile').children;
-    extend_columns(user, columns, null);
-    document.querySelector('#user-picture').src = `https://avatars.dicebear.com/api/big-smile/${user.Username}.svg`;
-    create_menu('#menu', [{href: '/courses.html', text: '課程'}]);
-};
-
-async function render_likes() {
-    set_loading('#loading');
-    var data = await load_likes();
-    del_loading('#loading');
-    var nodes = select_template('#course');
-    extend_items(data, nodes.tpl, nodes.ptr, function(id) {
-        location.href = `/course.html?id=${id}`;
-    });
-};
-</script>
+<script src="/js/modules.js" charset="utf-8"></script>
+<script charset="utf-8"> window.onload = fl_user; </script>
