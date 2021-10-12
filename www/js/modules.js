@@ -123,7 +123,7 @@ async function fl_courses(categories) {
 
 async function fl_course() {
     new_menu('#menu', [{href: '/courses.html', text: '課程'}]);
-    set_goto('#goto', 'nav');
+    set_goto('#goto', '#player');
     set_height('main', 'footer');
 
     const id = (new URLSearchParams(location.search)).get('id');

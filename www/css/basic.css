@@ -378,12 +378,6 @@ div.profile > p {
     padding: 0.25rem 0 0 0.1rem;
 }
 
-iframe.player {
-    max-width: 100%;
-    /* border: 1px solid grey; */
-    /* box-shadow: 1px 2px 4px 1px grey; */
-}
-
 /* loading animation */
 .lds-default {
   display: inline-block;
