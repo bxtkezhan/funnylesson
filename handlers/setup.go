@@ -22,17 +22,19 @@ func Setup(){
 type SecretFunc func(
     w http.ResponseWriter, r *http.Request, s *sessions.Session)
 
-var (
-    Routes       = make(map[string]http.HandlerFunc)
-    SecretRoutes = make(map[string]SecretFunc)
-    Store        = sessions.NewCookieStore([]byte("super-secret-key"))
-)
-
 const (
     LevelVip     = 1<<iota
     LevelWorker  = 1<<iota
     LevelAdmin   = 1<<iota
     LevelDefault = 0
+
+    SecretKey = "super-secret-key"
+)
+
+var (
+    Routes       = make(map[string]http.HandlerFunc)
+    SecretRoutes = make(map[string]SecretFunc)
+    Store        = sessions.NewCookieStore([]byte(SecretKey))
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -77,21 +79,21 @@ func Jsonify(w http.ResponseWriter, v interface{}) {
     }
 }
 
-func Authority(r *http.Request) (int, error) {
+func Authority(r *http.Request) (*db.User, error) {
     ctx := r.Context()
     session, err := Store.Get(r, "cookie-fl")
     if err != nil {
-        return LevelDefault, err
+        return nil, err
     }
     id, found := session.Values["userid"].(int)
     if !found || id == 0 {
-        return LevelDefault, nil
+        return &db.User{}, nil
     }
     ctx_, cancel := context.WithCancel(ctx)
     user, err := db.GetUserById(ctx_, id)
     cancel()
     if err != nil {
-        return LevelDefault, err
+        return nil, err
     }
-    return user.Level, nil
+    return user, nil
 }

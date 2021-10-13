@@ -28,14 +28,26 @@ func Lesson(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         id = 1
     }
-    lesson, err := db.GetLessonById(ctx, id)
+    ctx_, cancel := context.WithCancel(ctx)
+    lesson, err := db.GetLessonById(ctx_, id)
     if err != nil {
         log.Panic(err)
     }
-    level, _ := Authority(r)
-    if level < lesson.Level {
-        http.Error(w, "Forbidden", http.StatusForbidden)
+    cancel()
+    user, err := Authority(r)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
         return
+    }
+    if user.Level < lesson.Level {
+        lesson.Source = "LEVEL"
+    } else if user.Level < LevelVip {
+        if user.Ticket < lesson.Ticket {
+            lesson.Source = "TICKET"
+        } else {
+            user.Ticket -= lesson.Ticket
+            db.SetUserTicket(ctx, user)
+        }
     }
     Jsonify(w, lesson)
 }
@@ -106,6 +118,10 @@ func AddLesson(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
     if err != nil {
         type_ = 0
     }
+    ticket, err := strconv.Atoi(r.PostFormValue("ticket"))
+    if err != nil {
+        ticket = 0
+    }
     level := LevelDefault
     switch r.PostFormValue("level") {
     case "", "default":
@@ -145,6 +161,7 @@ func AddLesson(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
         Source: source,
         Type: type_,
         Owner: id,
+        Ticket: ticket,
         Level: level}
     lesson.Id, err = strconv.Atoi(r.PostFormValue("id"))
     if err != nil {

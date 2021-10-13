@@ -82,6 +82,11 @@ async function load_courses(page, size, category='') {
     return await resp.json();
 }
 
+async function load_lesson(id) {
+    const resp = await fetch(`/api/lesson?id=${id}`);
+    return await resp.json();
+}
+
 async function load_lessons(page, size) {
     const resp = await fetch(`/api/lessons?page=${page}&size=${size}`);
     return await resp.json();

@@ -1,5 +1,14 @@
-function set_player(id, source, autoplay=0) {
-    var player = document.querySelector(id);
+async function set_player(id, lesson_id, autoplay=0) {
+    const source = (await load_lesson(lesson_id)).Source;
+    switch (source) {
+        case 'LEVEL':
+            alert('請登錄');
+            break;
+        case 'TICKET':
+            alert('缺銀子');
+            break;
+    }
+    const player = document.querySelector(id);
     var frame = null;
     if (source.split('.').pop().toUpperCase() == 'M3U8') {
         frame = document.createElement('video')

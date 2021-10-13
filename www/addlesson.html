@@ -38,7 +38,12 @@
                     <div>
                         <label>資源</label>
                         <input type="url" name="source" id="source" value="">
-                        <small>視頻地址或視頻播放頁面地址「目前僅支持西瓜視頻」</small>
+                        <small>視頻地址或視頻播放頁面地址「目前僅支持HLS與西瓜視頻」</small>
+                    </div>
+                    <div>
+                        <label>票券</label>
+                        <input type="number" name="ticket" id="ticket" value="0">
+                        <small>觀看此課時所需花費的票券</small>
                     </div>
                     <div>
                         <label>等級</label>
@@ -59,3 +64,25 @@
         </main>
     </body>
 </html>
+<script src="/js/functions.js" charset="utf-8"></script>
+<script charset="utf-8">
+const input = document.querySelector('#id');
+input.oninput = async function(e) {
+    const lesson = await load_lesson(e.target.value || 0);
+    Object.entries(lesson).forEach(pair => {
+        if (pair[0] == "Id") return;
+        const tag = document.querySelector(`#${pair[0].toLowerCase()}`);
+        if (tag == null) return;
+        switch (tag.type) {
+            case 'file':
+                break;
+            case 'select-one':
+                tag.children[pair[1]].selected = true;
+                break;
+            default:
+                tag.value = pair[1];
+                break;
+        }
+    });
+}
+</script>

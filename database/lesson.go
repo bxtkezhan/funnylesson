@@ -31,6 +31,7 @@ type Lesson struct {
     Source string
     Type int
     Owner int
+    Ticket int
     Level int
 }
 
@@ -40,15 +41,16 @@ type LessonSummary struct {
     Title string
     Introduction string
     Image string
+    Ticket int
     Level int
 }
 
 func AddLesson(ctx context.Context, lesson *Lesson) error {
     _, err := DB.ExecContext(ctx,
-        `insert into lesson(time, title, introduction, keywords, image, source, type, owner, level)
+        `insert into lesson(time, title, introduction, keywords, image, source, type, owner, ticket, level)
         values(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         lesson.Time, lesson.Title, lesson.Introduction, lesson.Keywords, lesson.Image, lesson.Source,
-        lesson.Type, lesson.Owner, lesson.Level)
+        lesson.Type, lesson.Owner, lesson.Ticket, lesson.Level)
     return err
 }
 
@@ -75,6 +77,7 @@ func GetLessonById(ctx context.Context, id int) (*Lesson, error) {
             &lesson.Source,
             &lesson.Type,
             &lesson.Owner,
+            &lesson.Ticket,
             &lesson.Level)
         if err != nil {
             return nil, err
@@ -90,19 +93,19 @@ func SetLesson(ctx context.Context, lesson *Lesson) error {
     if lesson.Image == "" {
         _, err := DB.ExecContext(ctx,
             `update lesson
-            set time = ?, title = ?, introduction = ?, keywords = ?, source = ?, type = ?, owner = ?, level = ?
+            set time = ?, title = ?, introduction = ?, keywords = ?, source = ?, type = ?, owner = ?, ticket = ?, level = ?
             where id = ?`,
             lesson.Time, lesson.Title, lesson.Introduction, lesson.Keywords, lesson.Source, lesson.Type,
-            lesson.Owner, lesson.Level,
+            lesson.Owner, lesson.Ticket, lesson.Level,
             lesson.Id)
         return err
     }
     _, err := DB.ExecContext(ctx,
         `update lesson
-        set time = ?, title = ?, introduction = ?, keywords = ?, image = ?, source = ?, type = ?, owner = ?, level = ?
+        set time = ?, title = ?, introduction = ?, keywords = ?, image = ?, source = ?, type = ?, owner = ?, ticket = ?, level = ?
         where id = ?`,
         lesson.Time, lesson.Title, lesson.Introduction, lesson.Keywords, lesson.Image, lesson.Source, lesson.Type,
-        lesson.Owner, lesson.Level,
+        lesson.Owner, lesson.Ticket, lesson.Level,
         lesson.Id)
     return err
 }
@@ -113,7 +116,7 @@ func GetLessons(
     args ...interface{}) ([]*LessonSummary, error) {
 
     lessons := []*LessonSummary{}
-    query := `select id, time, title, introduction, image, level from lesson`
+    query := `select id, time, title, introduction, image, ticket, level from lesson`
     if where != "" {
         query = fmt.Sprintf("%s where %s", query, where)
     }
@@ -133,6 +136,7 @@ func GetLessons(
             &lesson.Title,
             &lesson.Introduction,
             &lesson.Image,
+            &lesson.Ticket,
             &lesson.Level)
         if err != nil {
             return nil, err

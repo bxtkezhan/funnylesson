@@ -35,8 +35,8 @@ func Course(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         log.Panic(err)
     }
-    level, _ := Authority(r)
-    if level < course.Level {
+    user, err := Authority(r)
+    if err != nil || user.Level < course.Level {
         http.Error(w, "Forbidden", http.StatusForbidden)
         return
     }
@@ -160,6 +160,18 @@ func Contents(w http.ResponseWriter, r *http.Request) {
     lessons, err := db.GetContents(ctx, id)
     if err != nil {
         log.Panic(err)
+    }
+    user, err := Authority(r)
+    level := 0
+    if err == nil {
+        level = user.Level
+    }
+    for i, lesson := range lessons {
+        if lesson.Level > level {
+            lessons[i].Source = "LEVEL"
+        } else if lesson.Ticket > 0 {
+            lessons[i].Source = "TICKET"
+        }
     }
     Jsonify(w, lessons)
 }

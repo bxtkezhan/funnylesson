@@ -158,8 +158,21 @@ async function fl_course() {
         var item = document.createElement('A');
         index.append(item);
         item.innerText = lesson.Id;
+        const sup = document.createElement('sup');
+        const small = document.createElement('small');
+        sup.append(small);
+        switch (lesson.Source) {
+            case 'TICKET':
+                small.innerText = '付費';
+                item.append(sup)
+                break;
+            case 'LEVEL':
+                small.innerText = '登錄';
+                item.append(sup)
+                break;
+        }
         item.onclick = function() {
-            set_player('#player', lesson.Source, 1);
+            set_player('#player', lesson.Id, 1);
             var columns = document.querySelector('#lesson').children;
             extend_columns(lesson, columns, null);
         };
@@ -167,12 +180,12 @@ async function fl_course() {
     var nodes = select_template('#lesson-item');
     extend_items(data, nodes.tpl, nodes.ptr, id => {
         var lesson = data[id - 1];
-        set_player('#player', lesson.Source, 1);
+        set_player('#player', lesson.Id, 1);
         var columns = document.querySelector('#lesson').children;
         extend_columns(lesson, columns, null);
     });
     if (data.length > 0) {
-        set_player('#player', data[0].Source);
+        set_player('#player', data[0].Id);
         var columns = document.querySelector('#lesson').children;
         extend_columns(data[0], columns, null);
     }

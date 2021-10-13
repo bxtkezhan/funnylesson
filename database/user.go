@@ -29,6 +29,7 @@ type User struct {
     Email string
     Introduction string
     Image string
+    Ticket int
     Time int64
     Level int
 }
@@ -39,6 +40,7 @@ type UserSummary struct {
     Email string
     Introduction string
     Image string
+    Ticket int
     Time int64
     Level int
 }
@@ -58,7 +60,7 @@ func DelUser(ctx context.Context, id int) error {
 
 func GetUserById(ctx context.Context, id int) (*User, error) {
     rows, err := DB.QueryContext(ctx,
-        `select id, username, email, introduction, image, time, level from user where id = ?`, id)
+        `select id, username, email, introduction, image, ticket, time, level from user where id = ?`, id)
     if err != nil {
         return nil, err
     }
@@ -70,6 +72,7 @@ func GetUserById(ctx context.Context, id int) (*User, error) {
             &user.Email,
             &user.Introduction,
             &user.Image,
+            &user.Ticket,
             &user.Time,
             &user.Level)
         if err != nil {
@@ -142,9 +145,14 @@ func ValidPassword(ctx context.Context, email, password string) int {
 func SetUser(ctx context.Context, user *User) error {
     _, err := DB.ExecContext(ctx,
         `update user
-        set username = ?, password = ?, email = ?, introduction = ?, image = ?, time = ?, level = ?
+        set username = ?, password = ?, email = ?, introduction = ?, image = ?, ticket = ?, time = ?, level = ?
         where id = ?`,
-        user.Username, user.Password, user.Email, user.Introduction, user.Image, user.Time, user.Level)
+        user.Username, user.Password, user.Email, user.Introduction, user.Image, user.Ticket, user.Time, user.Level, user.Id)
+    return err
+}
+
+func SetUserTicket(ctx context.Context, user *User) error {
+    _, err := DB.ExecContext(ctx, `update user set ticket = ?  where id = ?`, user.Ticket, user.Id)
     return err
 }
 
@@ -154,7 +162,7 @@ func GetUsers(
     args ...interface{}) ([]*UserSummary, error) {
 
     users := []*UserSummary{}
-    query := `select id, username, email, introduction, image, time, level from user`
+    query := `select id, username, email, introduction, image, ticket, time, level from user`
     if where != "" {
         query = fmt.Sprintf("%s where %s", query, where)
     }
@@ -174,6 +182,7 @@ func GetUsers(
             &user.Email,
             &user.Introduction,
             &user.Image,
+            &user.Ticket,
             &user.Time,
             &user.Level)
         if err != nil {
