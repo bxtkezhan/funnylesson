@@ -30,26 +30,39 @@ func Lesson(w http.ResponseWriter, r *http.Request) {
     }
     ctx_, cancel := context.WithCancel(ctx)
     lesson, err := db.GetLessonById(ctx_, id)
+    cancel()
     if err != nil {
         log.Panic(err)
     }
-    cancel()
     user, err := Authority(r)
     if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
+        log.Panic(err)
+    }
+    ctx_, cancel = context.WithCancel(ctx)
+    isBought, err := db.IsBought(ctx_, user.Id, lesson.Id)
+    cancel()
+    if err != nil {
+        log.Panic(err)
+    }
+    frame := struct {*db.Lesson; Status int}{lesson, 0}
+    cost := lesson.Ticket
+    if isBought || user.Level > LevelVip {
+        cost = 0
+    }
+    if user.Ticket < cost {
+        frame.Status = 1
     }
     if user.Level < lesson.Level {
-        lesson.Source = "LEVEL"
-    } else if user.Level < LevelVip {
-        if user.Ticket < lesson.Ticket {
-            lesson.Source = "TICKET"
-        } else {
-            user.Ticket -= lesson.Ticket
-            db.SetUserTicket(ctx, user)
-        }
+        frame.Status = 2
     }
-    Jsonify(w, lesson)
+    if frame.Status != 0 {
+        frame.Lesson = &db.Lesson{}
+    } else if cost > 0 {
+        user.Ticket -= cost
+        db.SetUserTicket(ctx, user)
+        db.BuyLesson(ctx, user.Id, lesson.Id)
+    }
+    Jsonify(w, frame)
 }
 
 func Lessons(w http.ResponseWriter, r *http.Request) {
@@ -101,17 +114,17 @@ func AddLesson(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
     source := r.PostFormValue("source")
     if len(title) < 1 {
         log.Println("title is empty")
-        http.Redirect(w, r, "/addlesson.html", http.StatusSeeOther)
+        http.Redirect(w, r, "/worker/addlesson.html", http.StatusSeeOther)
         return
     }
     if len(introduction) < 2 {
         log.Println("introduction is too short")
-        http.Redirect(w, r, "/addlesson.html", http.StatusSeeOther)
+        http.Redirect(w, r, "/worker/addlesson.html", http.StatusSeeOther)
         return
     }
     if len(source) < 1 {
         log.Println("source is empty")
-        http.Redirect(w, r, "/addlesson.html", http.StatusSeeOther)
+        http.Redirect(w, r, "/worker/addlesson.html", http.StatusSeeOther)
         return
     }
     type_, err := strconv.Atoi(r.PostFormValue("type"))
@@ -134,7 +147,7 @@ func AddLesson(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
         level = LevelAdmin
     default:
         log.Println("no support level:", r.PostFormValue("level"))
-        http.Redirect(w, r, "/addlesson.html", http.StatusSeeOther)
+        http.Redirect(w, r, "/worker/addlesson.html", http.StatusSeeOther)
     }
     filename := ""
     srcFile, header, err := r.FormFile("image")

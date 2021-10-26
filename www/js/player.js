@@ -1,13 +1,14 @@
 async function set_player(id, lesson_id, autoplay=0) {
-    const source = (await load_lesson(lesson_id)).Source;
-    switch (source) {
-        case 'LEVEL':
-            alert('請登錄');
-            break;
-        case 'TICKET':
+    const data = await load_lesson(lesson_id);
+    switch (data.Status) {
+        case 1:
             alert('缺銀子');
-            break;
+            return false;
+        case 2:
+            alert('請登錄');
+            return false;
     }
+    const source = data.Source;
     const player = document.querySelector(id);
     var frame = null;
     if (source.split('.').pop().toUpperCase() == 'M3U8') {
@@ -38,4 +39,5 @@ async function set_player(id, lesson_id, autoplay=0) {
             frame.height = Math.round(frame.width * 9 / 16);
         });
     }
+    return true;
 }

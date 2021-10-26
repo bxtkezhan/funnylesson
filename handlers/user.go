@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+    // "context"
 
 	db "../database"
 
@@ -17,6 +18,9 @@ func init() {
     SecretRoutes["/inlikes"] = InLikes
     SecretRoutes["/follow"] = Follow
     SecretRoutes["/unfollow"] = UnFollow
+    SecretRoutes["/mining"] = Mining
+    SecretRoutes["/genmimes"] = GenMimes
+    SecretRoutes["/getmimes"] = GetMimes
 }
 
 func User(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
@@ -113,4 +117,93 @@ func UnFollow(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
     if err = db.UnFollow(ctx, user, course); err != nil {
         log.Panic(err)
     }
+}
+
+func Mining(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
+    ctx := r.Context()
+    user, err := Authority(r)
+    if err != nil {
+        log.Panic(err)
+    }
+    code := r.URL.Query().Get("code")
+    if code == "" {
+        http.Error(w, "code is empty", http.StatusBadRequest)
+        return
+    }
+    count, err := db.Mining(ctx, user.Id, code)
+    if err != nil {
+        log.Println(err)
+    }
+    if count == 0 {
+        return
+    }
+    user.Ticket += count
+    err = db.SetUserTicket(ctx, user)
+    if err != nil {
+        log.Println(err)
+    }
+    http.Redirect(w, r, "/user.html", http.StatusSeeOther)
+}
+
+func GenMimes(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
+    ctx := r.Context()
+    user, err := Authority(r)
+    if err != nil {
+        log.Panic(err)
+    }
+    if user.Level < LevelWorker {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+    total, err := strconv.Atoi(r.URL.Query().Get("total"))
+    if err != nil {
+        http.Error(w, "total is not a integer", http.StatusBadRequest)
+        return
+    }
+    count, err := strconv.Atoi(r.URL.Query().Get("count"))
+    if err != nil {
+        http.Error(w, "count is not a integer", http.StatusBadRequest)
+        return
+    }
+    if total < 1 || count < 1 {
+        return
+    }
+    err = db.GenMime(ctx, total, count)
+    if err != nil {
+        log.Println(err)
+    }
+}
+
+func GetMimes(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
+    ctx := r.Context()
+    user, err := Authority(r)
+    if err != nil {
+        log.Panic(err)
+    }
+    if user.Level < LevelWorker {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+    total := 0
+    paramTotal := r.URL.Query().Get("total")
+    if paramTotal != "" {
+        total, err = strconv.Atoi(paramTotal)
+    }
+    if err != nil {
+        http.Error(w, "total is not a integer", http.StatusBadRequest)
+        return
+    }
+    count, err := strconv.Atoi(r.URL.Query().Get("count"))
+    if err != nil {
+        http.Error(w, "count is not a integer", http.StatusBadRequest)
+        return
+    }
+    if count < 1 {
+        return
+    }
+    codes, err := db.GetMimes(ctx, total, count)
+    if err != nil {
+        log.Println(err)
+    }
+    Jsonify(w, codes)
 }

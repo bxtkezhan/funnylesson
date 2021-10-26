@@ -97,6 +97,11 @@ async function load_contents(id) {
     return await resp.json();
 }
 
+async function load_users(page, size) {
+    const resp = await fetch(`/api/users?page=${page}&size=${size}`);
+    return await resp.json();
+}
+
 async function load_user() {
     const resp = await fetch(`/api/user`);
     if (resp.status == 403) {
@@ -118,6 +123,16 @@ async function in_likes(id) {
     const resp = await fetch(`/api/inlikes?course=${id}`);
     if (!resp.ok) return false;
     return await resp.json();
+}
+
+async function load_mimes(count, total) {
+    const resp = await fetch(`/api/getmimes?count=${count}&total=${total}`);
+    return await resp.json();
+}
+
+async function make_mimes(count, total) {
+    const resp = await fetch(`/api/genmimes?count=${count}&total=${total}`);
+    return await resp.text();
 }
 
 function set_loading(id) {

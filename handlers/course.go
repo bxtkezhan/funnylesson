@@ -89,17 +89,17 @@ func AddCourse(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
     category := r.PostFormValue("category")
     if len(title) < 1 {
         log.Println("title is empty")
-        http.Redirect(w, r, "/addcourse.html", http.StatusSeeOther)
+        http.Redirect(w, r, "/worker/addcourse.html", http.StatusSeeOther)
         return
     }
     if len(introduction) < 2 {
         log.Println("introduction is too short")
-        http.Redirect(w, r, "/addcourse.html", http.StatusSeeOther)
+        http.Redirect(w, r, "/worker/addcourse.html", http.StatusSeeOther)
         return
     }
     if len(category) < 1 {
         log.Println("category is empty")
-        http.Redirect(w, r, "/addcourse.html", http.StatusSeeOther)
+        http.Redirect(w, r, "/worker/addcourse.html", http.StatusSeeOther)
         return
     }
     level := LevelDefault
@@ -114,7 +114,7 @@ func AddCourse(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
         level = LevelAdmin
     default:
         log.Println("no support level:", r.PostFormValue("level"))
-        http.Redirect(w, r, "/addcourse.html", http.StatusSeeOther)
+        http.Redirect(w, r, "/worker/addcourse.html", http.StatusSeeOther)
     }
     filename := ""
     srcFile, header, err := r.FormFile("image")
@@ -148,7 +148,7 @@ func AddCourse(w http.ResponseWriter, r *http.Request, s *sessions.Session) {
     } else {
         db.SetCourse(ctx, course)
     }
-    http.Redirect(w, r, "/addcourse.html", http.StatusSeeOther)
+    http.Redirect(w, r, "/worker/addcourse.html", http.StatusSeeOther)
 }
 
 func Contents(w http.ResponseWriter, r *http.Request) {
@@ -166,14 +166,21 @@ func Contents(w http.ResponseWriter, r *http.Request) {
     if err == nil {
         level = user.Level
     }
+    frames := make([](struct {*db.Lesson; Status int}), len(lessons))
     for i, lesson := range lessons {
+        frames[i].Lesson = lesson
+        isBought, err := db.IsBought(ctx, user.Id, lesson.Id)
+        if err == nil && isBought {
+            lesson.Ticket = 0
+        }
+        if lesson.Ticket > 0 {
+            frames[i].Status = 1
+        }
         if lesson.Level > level {
-            lessons[i].Source = "LEVEL"
-        } else if lesson.Ticket > 0 {
-            lessons[i].Source = "TICKET"
+            frames[i].Status = 2
         }
     }
-    Jsonify(w, lessons)
+    Jsonify(w, frames)
 }
 
 func AddContent(w http.ResponseWriter, r *http.Request, s *sessions.Session) {

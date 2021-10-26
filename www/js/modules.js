@@ -161,26 +161,28 @@ async function fl_course() {
         const sup = document.createElement('sup');
         const small = document.createElement('small');
         sup.append(small);
-        switch (lesson.Source) {
-            case 'TICKET':
+        switch (lesson.Status) {
+            case 1:
                 small.innerText = '付費';
                 item.append(sup)
                 break;
-            case 'LEVEL':
+            case 2:
                 small.innerText = '登錄';
                 item.append(sup)
                 break;
         }
-        item.onclick = function() {
-            set_player('#player', lesson.Id, 1);
+        item.onclick = async function() {
+            const ret = await set_player('#player', lesson.Id, 1);
+            if (!ret) return;
             var columns = document.querySelector('#lesson').children;
             extend_columns(lesson, columns, null);
         };
     })
     var nodes = select_template('#lesson-item');
-    extend_items(data, nodes.tpl, nodes.ptr, id => {
+    extend_items(data, nodes.tpl, nodes.ptr, async function(id) {
         var lesson = data[id - 1];
-        set_player('#player', lesson.Id, 1);
+        const ret = await set_player('#player', lesson.Id, 1);
+        if (!ret) return;
         var columns = document.querySelector('#lesson').children;
         extend_columns(lesson, columns, null);
     });
@@ -238,6 +240,10 @@ function fl_signup() {
     new_menu('#menu', [{href: '/courses.html', text: '課程'}, {href: '/', text: '首頁'}]);
 }
 
+function fl_mining() {
+    new_menu('#menu', [{href: '/courses.html', text: '課程'}]);
+}
+
 async function fl_user() {
     new_menu('#menu', [{href: '/courses.html', text: '課程'}]);
     set_height('main', 'footer');
@@ -248,6 +254,15 @@ async function fl_user() {
     extend_columns(user, columns, null);
     var src = `https://avatars.dicebear.com/api/big-smile/${user.Username}.svg`;
     document.querySelector('#user-picture').src = src;
+    if (user.Level > 1) {
+        const elem = document.querySelector('#level');
+        const link = document.createElement('a');
+        elem.append(link);
+        link.href = '/worker/index.html';
+        link.innerText = '#點擊進入工作頁';
+        link.style.marginLeft = '0.1rem';
+        link.style.fontSize = 'small';
+    }
 
     set_loading('#loading');
     var data = await load_likes();

@@ -6,6 +6,7 @@ import (
     "net/http"
     "strings"
     "encoding/json"
+    "path/filepath"
     "context"
 
     db "../database"
@@ -15,6 +16,7 @@ import (
 
 func Setup(){
     http.Handle("/", http.FileServer(http.Dir("./www")))
+    http.HandleFunc("/worker/", WorkerFileServer)
     http.HandleFunc("/img/", FileServer)
     http.HandleFunc("/api/", Handler)
 }
@@ -70,6 +72,18 @@ func FileServer(w http.ResponseWriter, r *http.Request) {
     } else {
         http.NotFound(w, r)
     }
+}
+
+func WorkerFileServer(w http.ResponseWriter, r *http.Request) {
+    user, err := Authority(r)
+    if err != nil {
+        log.Println(err)
+    }
+    if user == nil || user.Level < LevelWorker {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+    http.ServeFile(w, r, filepath.Join("www", r.URL.Path))
 }
 
 func Jsonify(w http.ResponseWriter, v interface{}) {
