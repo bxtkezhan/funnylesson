@@ -51,10 +51,16 @@ nav > a.menu-logo > img {
     width: auto;
 }
 
+@media (max-width: 36em) {
+    nav > a.menu-logo > img {
+        margin-left: 0;
+    }
+}
+
 nav > a.menu-title {
     float: left;
     font-size: 1.4rem;
-    color: #41949E;
+    color: var(--base03);
     padding: 1.3rem 0 1rem 0;
 }
 

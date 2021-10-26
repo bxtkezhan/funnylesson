@@ -5,12 +5,12 @@ function new_menu(id, items=[]) {
     link.setAttribute('href', '/');
     node.append(link);
     var logo = document.createElement('IMG');
-    logo.setAttribute('src', '/logo/studydou.png');
+    logo.setAttribute('src', '/logo/Golang.png');
     link.append(logo);
     var head = document.createElement('A');
     head.classList.add('menu-title');
     head.setAttribute('href', '/');
-    head.innerText = 'StudyDou';
+    head.innerText = 'funnylesson';
     node.append(head);
     const path = location.pathname;
     if (!['/login.html', '/signup.html'].includes(path)) {
